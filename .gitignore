@@ -1,0 +1,13 @@
+__pycache__/
+build/
+dist/
+gui_examples/
+Icons/
+app.lock
+tests/
+AMScrobblerData/
+
+.env
+*.spec
+*.log
+error_log.txt
