@@ -36,7 +36,7 @@ def is_user_data():
 
 
 # Get image file
-def get_image_file(filename):
+def get_image_path(filename):
     if hasattr(sys, '_MEIPASS'):
         # Running in the PyInstaller bundle
         base_path = sys._MEIPASS

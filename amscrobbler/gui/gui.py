@@ -152,7 +152,7 @@ class MainFrame(ctk.CTkFrame):
 
         img_w, img_h = 40, 40
         if not self.user_data['avatar']:
-            img = Image.open(filework.get_image_file('placeholder_avatar.png'))
+            img = Image.open(filework.get_image_path('placeholder_avatar.png'))
             avatar_image = ctk.CTkImage(img, size=(img_w, img_h))
             self.avatar_image_label = ctk.CTkLabel(self.user_header_frame, image=avatar_image, text='', cursor='hand2')
         elif is_gif(self.user_data['avatar']):
@@ -186,10 +186,10 @@ class MainFrame(ctk.CTkFrame):
         self.gif_frame.grid_columnconfigure(0, weight=1)
         self.gif_frame.grid_rowconfigure(0, weight=1)
 
-        self.pause_gif_label = GIFLabel(self.gif_frame, filework.get_image_file('pause.gif'))
+        self.pause_gif_label = GIFLabel(self.gif_frame, filework.get_image_path('pause.gif'))
         self.pause_gif_label.grid(row=0, column=0)
 
-        self.playing_gif = GIFLabel(self.gif_frame, filework.get_image_file('am_50.gif'), width=200, height=100)
+        self.playing_gif = GIFLabel(self.gif_frame, filework.get_image_path('am_50.gif'), width=200, height=100)
         self.playing_gif.grid(row=0, column=0, pady=(30, 0))
         self.playing_gif.grid_remove()
 
@@ -220,7 +220,7 @@ class MainFrame(ctk.CTkFrame):
 
             # Display song's artwork, if no artwork display placeholder image
             artwork_image = ctk.CTkImage(
-                playing_now.get('artwork', filework.load_image(filework.get_image_file('no_artwork.jpg'))), size=(50, 50)
+                playing_now.get('artwork', filework.load_image(filework.get_image_path('no_artwork.jpg'))), size=(50, 50)
             )
 
             self.title_font.configure(size=20)
@@ -318,7 +318,7 @@ class Tray(pystray.Icon):
         super().__init__(master)
 
         self.master = master
-        self.image = filework.load_image(filework.get_image_file('combined_icon2.png'))
+        self.image = filework.load_image(filework.get_image_path('combined_icon2.png'))
         self.menu = pystray.Menu(
             pystray.MenuItem(text='Open', action=self.show_window, default=True), pystray.MenuItem('Exit', self.on_tray_quit)
         )
@@ -339,7 +339,7 @@ class App(ctk.CTk):
 
         ctk.set_appearance_mode('dark')
         self.title('AMScrobbler')
-        self.iconbitmap(filework.get_image_file('combined_icon2.ico'))
+        self.iconbitmap(filework.get_image_path('combined_icon2.ico'))
         self.geometry('400x500')
         self.resizable(False, False)
         self.protocol('WM_DELETE_WINDOW', self.hide_window)
