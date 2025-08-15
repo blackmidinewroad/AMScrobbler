@@ -8,7 +8,7 @@ import pylast
 from dotenv import load_dotenv
 
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
-from amscrobbler.logic.filework import load_user_data, save_user_data
+from amscrobbler.filework import load_user_data, save_user_data
 from amscrobbler.logic.lastfm.api import get_user_url
 
 load_dotenv()

@@ -31,7 +31,7 @@ def save_user_data(session_key, username, user_url):
 
 
 # Does file with user's data exists
-def is_user_data():
+def user_data_exists():
     return os.path.exists(USER_DATA_FILE)
 
 

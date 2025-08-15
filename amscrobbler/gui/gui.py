@@ -10,11 +10,11 @@ from PIL import Image
 from pylast import WSError
 
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
-from amscrobbler.logic import filework
+from amscrobbler import filework
 from amscrobbler.logic.lastfm.auth import auth_with_session_key, auth_without_session_key
 from amscrobbler.logic.lastfm.api import get_avatar
 from amscrobbler.logic.main_logic import run_background
-from amscrobbler.logic.utils import is_gif, make_circle
+from amscrobbler.utils import is_gif, make_circle
 
 
 # Login frame class. Has name of the app and button to log in
@@ -69,7 +69,7 @@ class LoginFrame(ctk.CTkFrame):
         self.poll_user_data()
 
     def auth_process(self):
-        if not filework.is_user_data() or not self.retry or self.retry == 'invalid_sk':
+        if not filework.user_data_exists() or not self.retry or self.retry == 'invalid_sk':
             self.user_data = auth_without_session_key()
         else:
             self.user_data = auth_with_session_key()
@@ -348,7 +348,7 @@ class App(ctk.CTk):
 
         self.error_queue, self.song_queue = queue.Queue(), queue.Queue()
 
-        if filework.is_user_data():
+        if filework.user_data_exists():
             self.user_data = auth_with_session_key()
             self.show_main_frame(self.user_data)
         else:
