@@ -2,8 +2,6 @@ __pycache__/
 build/
 dist/
 gui_examples/
-Icons/
-app.lock
 tests/
 AMScrobblerData/
 

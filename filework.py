@@ -44,7 +44,7 @@ def get_image_file(filename):
         # Running in a normal Python environment
         base_path = os.path.abspath('.')
 
-    return os.path.join(base_path, 'Icons', filename)
+    return os.path.join(base_path, 'icons', filename)
 
 
 # Load user's avatar
