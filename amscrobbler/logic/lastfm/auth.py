@@ -1,12 +1,15 @@
 import os
+import sys
 import time
 import webbrowser
+from pathlib import Path
 
 import pylast
 from dotenv import load_dotenv
 
-from filework import load_user_data, save_user_data
-from lastfm_side import get_user_url
+sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
+from amscrobbler.logic.filework import load_user_data, save_user_data
+from amscrobbler.logic.lastfm.api import get_user_url
 
 load_dotenv()
 

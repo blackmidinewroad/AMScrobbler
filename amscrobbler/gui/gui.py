@@ -1,19 +1,20 @@
-import atexit
 import queue
 import sys
 import threading
 import webbrowser
+from pathlib import Path
 
 import customtkinter as ctk
 import pystray
 from PIL import Image
 from pylast import WSError
 
-import filework
-from additional import is_gif, is_one_instance, make_circle
-from auth import auth_with_session_key, auth_without_session_key
-from lastfm_side import get_avatar
-from main_logic import run_background, scrobble_at_exit
+sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
+from amscrobbler.logic import filework
+from amscrobbler.logic.lastfm.auth import auth_with_session_key, auth_without_session_key
+from amscrobbler.logic.lastfm.api import get_avatar
+from amscrobbler.logic.main_logic import run_background
+from amscrobbler.logic.utils import is_gif, make_circle
 
 
 # Login frame class. Has name of the app and button to log in
@@ -421,23 +422,3 @@ class App(ctk.CTk):
 
         # Continue polling
         self.after(500, self.poll_song)
-
-
-def main_app():
-    # Make sure that only one instance of the app is running
-    if not is_one_instance('AMScrobbler.exe'):
-        sys.exit(1)
-
-    app = App()
-
-    atexit.register(scrobble_at_exit)
-
-    app.mainloop()
-
-
-if __name__ == '__main__':
-    try:
-        main_app()
-    except Exception:
-        filework.log_error_to_file()
-        sys.exit(1)

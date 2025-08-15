@@ -1,9 +1,12 @@
+import sys
 from datetime import timedelta
+from pathlib import Path
 
 from pywinauto import Application
 from pywinauto.findwindows import ElementAmbiguousError, ElementNotFoundError
 
-from additional import get_process_id
+sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
+from amscrobbler.logic.utils import get_process_id
 
 
 # Get Apple Music window with process ID

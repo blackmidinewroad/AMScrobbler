@@ -1,6 +1,10 @@
+import sys
+from pathlib import Path
+
 import pylast
 
-from additional import get_image_from_web, is_gif, make_circle
+sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
+from amscrobbler.logic.utils import get_image_from_web, is_gif, make_circle
 
 
 # Correct title and artist name if possible, get duration of a track

@@ -1,4 +1,6 @@
 import json
+import sys
+from pathlib import Path
 from urllib.parse import quote
 
 import isodate
@@ -6,7 +8,8 @@ import requests
 from bs4 import BeautifulSoup
 from requests.exceptions import HTTPError, RequestException, Timeout
 
-from additional import get_image_from_web
+sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
+from amscrobbler.logic.utils import get_image_from_web
 
 
 # Make URL for searching using title of a song, artist name and album name

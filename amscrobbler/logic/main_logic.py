@@ -1,9 +1,12 @@
 import queue
+import sys
 import time
+from pathlib import Path
 
-import lastfm_side
-from scrape_AM_app import get_data_from_AM_app
-from scrape_AM_web import update_data_using_AM_web
+sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
+from amscrobbler.logic.am.app_scraper import get_data_from_AM_app
+from amscrobbler.logic.am.web_scraper import update_data_using_AM_web
+from amscrobbler.logic.lastfm import api
 
 
 # Check if we can scrobble track (song exists and playtime more than a half of runtime of a song)
@@ -28,9 +31,9 @@ def increase_playtime(metadata, playing_now):
 # If listening to the same song several times in a row - scrobble and then reset timestamp and playtime, mark as now playing on last.fm
 def handle_relistening(metadata, network):
     if is_re_scrobbable(metadata):
-        lastfm_side.scrobble_song(metadata, network)
+        api.scrobble_song(metadata, network)
         metadata['timestamp'], metadata['playtime'] = int(time.time()), 0
-        lastfm_side.set_now_playing(metadata, network)
+        api.set_now_playing(metadata, network)
 
 
 # Add current song's info to queue so it can be displayed
@@ -45,7 +48,7 @@ def handle_no_metadata(prev_metadata, metadata_queue, network, closed):
     update_queue(metadata_queue, False)
 
     if is_scrobbable(prev_metadata):
-        lastfm_side.scrobble_song(prev_metadata, network)
+        api.scrobble_song(prev_metadata, network)
 
     prev_metadata.clear()
     prev_metadata['id'] = ''
@@ -57,7 +60,7 @@ def handle_no_metadata(prev_metadata, metadata_queue, network, closed):
 def scrobble_at_exit():
     try:
         if is_scrobbable(prev_metadata):
-            lastfm_side.scrobble_song(prev_metadata, exit_network)
+            api.scrobble_song(prev_metadata, exit_network)
 
     # Closed before background started running, so there are no prev_metadata and network
     except NameError:
@@ -90,18 +93,18 @@ def run_background(network, metadata_queue: queue.Queue):
 
             # Scrobble last song if possible
             if is_scrobbable(prev_metadata):
-                lastfm_side.scrobble_song(prev_metadata, network)
+                api.scrobble_song(prev_metadata, network)
 
             # Get duration and artwork
             update_data_using_AM_web(cur_metadata)
 
-            prev_metadata = lastfm_side.get_more_metadata(cur_metadata, network)
+            prev_metadata = api.get_more_metadata(cur_metadata, network)
 
             # If new song is playing - get start of a listen, mark as started playing, mark as now_playing on last.fm
             if cur_metadata['playing']:
                 prev_metadata['timestamp'], prev_metadata['last_played'] = int(cur_time), cur_time
                 started_playing = True
-                lastfm_side.set_now_playing(prev_metadata, network)
+                api.set_now_playing(prev_metadata, network)
 
             # If new song is paused - mark as not started playing
             else:
@@ -119,7 +122,7 @@ def run_background(network, metadata_queue: queue.Queue):
 
             # If song was paused - mark as keep playing
             if not prev_metadata['playing']:
-                lastfm_side.set_now_playing(prev_metadata, network)
+                api.set_now_playing(prev_metadata, network)
                 prev_metadata['playing'] = True
 
             # If it's a start of a listen - get time and mark as started playing
