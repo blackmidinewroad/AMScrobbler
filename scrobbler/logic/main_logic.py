@@ -4,7 +4,7 @@ import time
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
-from scrobbler.logic.am.app_scraper import get_data_from_AM_app
+from scrobbler.logic.am.app_scraper import AppScraper
 from scrobbler.logic.am.web_scraper import WebScraper
 from scrobbler.logic.lastfm import api
 
@@ -74,11 +74,12 @@ def run_background(network, metadata_queue: queue.Queue, minimalistic):
     exit_network = network
     prev_metadata = {'id': ''}
 
+    app_scraper = AppScraper()
     web_scraper = WebScraper()
 
     while True:
-        # Get current songs metadata
-        cur_metadata = get_data_from_AM_app(prev_id=prev_metadata['id'], is_app_duration=prev_metadata.get('is_app_duration'))
+        # Get current song's metadata
+        cur_metadata = app_scraper.get_data_from_AM_app(prev_id=prev_metadata['id'], is_app_duration=prev_metadata.get('is_app_duration'))
 
         # No song in Apple Music window
         if not cur_metadata or cur_metadata == 'X':
