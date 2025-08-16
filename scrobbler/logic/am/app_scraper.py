@@ -49,7 +49,7 @@ class AppScraper:
     def get_data_from_AM_app(self, prev_id: str, is_app_duration: bool) -> dict:
         """Get data from Apple Music app using GUI"""
 
-        if not self.main_window.exists():
+        if not self.main_window or not self.main_window.exists():
             self.get_window()
 
         if not self.main_window:
