@@ -5,7 +5,8 @@ from pathlib import Path
 import pylast
 
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
-from scrobbler.utils import get_image_from_web, is_gif, make_circle
+from scrobbler.logic.am.web_scraper import WebScraper
+from scrobbler.utils import is_gif, make_circle
 
 logger = logging.getLogger(__name__)
 
@@ -80,7 +81,9 @@ def get_avatar(username, network: pylast.LastFMNetwork):
     if not url:
         return
 
-    img = get_image_from_web(url)
+    web_scraper = WebScraper()
+
+    img = web_scraper.fetch_data(url, is_image=True)
     if not img:
         return
 
