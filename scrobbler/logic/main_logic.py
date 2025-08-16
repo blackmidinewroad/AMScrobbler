@@ -4,9 +4,9 @@ import time
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
-from amscrobbler.logic.am.app_scraper import get_data_from_AM_app
-from amscrobbler.logic.am.web_scraper import update_data_using_AM_web
-from amscrobbler.logic.lastfm import api
+from scrobbler.logic.am.app_scraper import get_data_from_AM_app
+from scrobbler.logic.am.web_scraper import update_data_using_AM_web
+from scrobbler.logic.lastfm import api
 
 
 # Check if we can scrobble track (song exists and playtime more than a half of runtime of a song)

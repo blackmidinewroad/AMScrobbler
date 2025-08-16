@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 from requests.exceptions import HTTPError, RequestException, Timeout
 
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
-from amscrobbler.utils import get_image_from_web
+from scrobbler.utils import get_image_from_web
 
 
 # Make URL for searching using title of a song, artist name and album name

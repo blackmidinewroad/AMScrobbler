@@ -4,7 +4,7 @@ from pathlib import Path
 import pylast
 
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
-from amscrobbler.utils import get_image_from_web, is_gif, make_circle
+from scrobbler.utils import get_image_from_web, is_gif, make_circle
 
 
 # Correct title and artist name if possible, get duration of a track

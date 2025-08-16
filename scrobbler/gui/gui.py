@@ -10,11 +10,11 @@ from PIL import Image
 from pylast import WSError
 
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
-from amscrobbler import filework
-from amscrobbler.logic.lastfm.auth import auth_with_session_key, auth_without_session_key
-from amscrobbler.logic.lastfm.api import get_avatar
-from amscrobbler.logic.main_logic import run_background
-from amscrobbler.utils import is_gif, make_circle
+from scrobbler import filework
+from scrobbler.logic.lastfm.api import get_avatar
+from scrobbler.logic.lastfm.auth import auth_with_session_key, auth_without_session_key
+from scrobbler.logic.main_logic import run_background
+from scrobbler.utils import is_gif, make_circle
 
 
 # Login frame class. Has name of the app and button to log in

@@ -6,7 +6,7 @@ from pywinauto import Application
 from pywinauto.findwindows import ElementAmbiguousError, ElementNotFoundError
 
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
-from amscrobbler.utils import get_process_id
+from scrobbler.utils import get_process_id
 
 
 # Get Apple Music window with process ID
