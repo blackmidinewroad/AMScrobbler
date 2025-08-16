@@ -1,3 +1,4 @@
+import logging
 import queue
 import sys
 import threading
@@ -15,6 +16,8 @@ from scrobbler.logic.lastfm.api import get_avatar
 from scrobbler.logic.lastfm.auth import auth_with_session_key, auth_without_session_key
 from scrobbler.logic.main_logic import run_background
 from scrobbler.utils import is_gif, make_circle
+
+logger = logging.getLogger(__name__)
 
 
 # Login frame class. Has name of the app and button to log in
@@ -397,7 +400,7 @@ class App(ctk.CTk):
         try:
             run_background(network, song_queue)
         except Exception as e:
-            filework.log_error_to_file()
+            logger.error('%s', e, exc_info=True)
             self.error_queue.put(e)
 
     # Check if there are any errors in the background. Try to relogin if error

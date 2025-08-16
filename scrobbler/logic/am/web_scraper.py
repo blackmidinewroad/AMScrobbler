@@ -1,4 +1,5 @@
 import json
+import logging
 import sys
 from pathlib import Path
 from urllib.parse import quote
@@ -10,6 +11,8 @@ from requests.exceptions import HTTPError, RequestException, Timeout
 
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 from scrobbler.utils import get_image_from_web
+
+logger = logging.getLogger(__name__)
 
 
 # Make URL for searching using title of a song, artist name and album name
@@ -27,6 +30,7 @@ def get_soup(url):
         soup = BeautifulSoup(response.text, 'html.parser')
         return soup
     except (HTTPError, Timeout, RequestException):
+        logger.warning("Couldn't fetch Apple Music web page, URL: %s", url, exc_info=True)
         return
 
 

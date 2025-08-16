@@ -1,3 +1,4 @@
+import logging
 from io import BytesIO
 
 import numpy as np
@@ -5,6 +6,8 @@ import psutil
 import requests
 from PIL import Image, ImageDraw
 from requests.exceptions import HTTPError, RequestException, Timeout
+
+logger = logging.getLogger(__name__)
 
 
 # Crop a circle out of image
@@ -58,4 +61,5 @@ def get_image_from_web(url):
         img = Image.open(BytesIO(response.content))
         return img
     except (HTTPError, Timeout, RequestException):
+        logger.warning("Couldn't fetch image, URL: %s", url, exc_info=True)
         return

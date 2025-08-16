@@ -1,3 +1,4 @@
+import logging
 import sys
 from pathlib import Path
 
@@ -5,6 +6,8 @@ import pylast
 
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 from scrobbler.utils import get_image_from_web, is_gif, make_circle
+
+logger = logging.getLogger(__name__)
 
 
 # Correct title and artist name if possible, get duration of a track
@@ -45,6 +48,7 @@ def scrobble_song(metadata, network: pylast.LastFMNetwork):
             )
             break
         except pylast.NetworkError:
+            logger.warning("Couldn't scrobble the song due to pylast.NetworkError, song metadata: %s", metadata)
             continue
 
 
@@ -58,6 +62,7 @@ def set_now_playing(metadata, network: pylast.LastFMNetwork):
             duration=metadata['duration'],
         )
     except pylast.NetworkError:
+        logger.warning("Couldn't set 'now playing' for the song due to pylast.NetworkError, song metadata: %s", metadata)
         pass
 
 
@@ -69,6 +74,7 @@ def get_avatar(username, network: pylast.LastFMNetwork):
             url = user.get_image()
             break
         except pylast.NetworkError:
+            logger.warning("Couldn't fetch user's avatar due to pylast.NetworkError, username: %s", username)
             continue
 
     if not url:

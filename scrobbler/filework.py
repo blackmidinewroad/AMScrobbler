@@ -1,11 +1,17 @@
 import json
 import os
 import sys
-import traceback
+from pathlib import Path
 
 from PIL import Image
 
-USER_DATA_FILE = os.path.join(os.path.expanduser('~'), 'lastfm_user_data.json')
+USER_HOME_DIR = os.path.expanduser('~')
+AM_SCROBBLER_DATA_DIR = Path(os.path.join(USER_HOME_DIR, 'AMScrobbler'))
+if not AM_SCROBBLER_DATA_DIR.exists():
+    AM_SCROBBLER_DATA_DIR.mkdir(exist_ok=True)
+
+USER_DATA_FILE = os.path.join(AM_SCROBBLER_DATA_DIR, 'lastfm_user_data.json')
+LOG_FILE = os.path.join(AM_SCROBBLER_DATA_DIR, 'am_scrobbler.log')
 
 
 # Load user's data from json
@@ -53,14 +59,3 @@ def load_image(filepath):
         with Image.open(filepath) as img:
             img.load()
             return img
-
-
-# Log all errors to file
-def log_error_to_file(data=None):
-    with open('error_log.txt', 'a', encoding='utf-8') as file:
-        if not data:
-            file.write(traceback.format_exc())
-            file.write('\n')
-        else:
-            file.write(data)
-            file.write('\n\n')
