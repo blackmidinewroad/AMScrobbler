@@ -34,7 +34,7 @@ class AppScraper:
         return timedelta(hours=hours, minutes=minutes, seconds=seconds).seconds
 
     def get_duration_from_window(self) -> int:
-        """Get duration from progress bar of the song: get listening time and time left, then add them together"""
+        """Get duration from progress bar of a song: get listening time and time left, then add them together"""
 
         try:
             cur_time = self.main_window.child_window(auto_id="CurrentTime", control_type="Text").window_text()
