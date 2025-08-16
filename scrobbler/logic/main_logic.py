@@ -42,9 +42,8 @@ def update_queue(metadata_queue: queue.Queue, prev_metadata):
         metadata_queue.put(prev_metadata)
 
 
-# If no metadata from Apple Music app - try to scrobble last song and empty prev_metadata;
-# Sleep for 5 sec. if music ended, sleep for 10 if app is closed
-def handle_no_metadata(prev_metadata, metadata_queue, network, closed):
+# If no metadata from Apple Music app - try to scrobble last song and empty prev_metadata
+def handle_no_metadata(prev_metadata, metadata_queue, network):
     update_queue(metadata_queue, False)
 
     if is_scrobbable(prev_metadata):
@@ -53,7 +52,7 @@ def handle_no_metadata(prev_metadata, metadata_queue, network, closed):
     prev_metadata.clear()
     prev_metadata['id'] = ''
 
-    time.sleep(5) if not closed else time.sleep(10)
+    time.sleep(1)
 
 
 # Scrobble song at exit if possible
@@ -83,7 +82,7 @@ def run_background(network, metadata_queue: queue.Queue, minimalistic):
 
         # No song in Apple Music window
         if not cur_metadata or cur_metadata == 'X':
-            handle_no_metadata(prev_metadata, metadata_queue, network, cur_metadata)
+            handle_no_metadata(prev_metadata, metadata_queue, network)
             continue
 
         # Try to set duration from the app
