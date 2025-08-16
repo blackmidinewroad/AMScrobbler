@@ -367,7 +367,7 @@ class App(ctk.CTk):
         self.login_frame.grid(row=0, column=0, padx=10, pady=(10, 10))
 
     def show_main_frame(self, user_data):
-        # # Add user's avatar to data
+        # # Add user's avatar to data (not minimalistic)
         # try:
         #     avatar = get_avatar(self.user_data['username'], self.user_data['network'])
         #     self.user_data['avatar'] = avatar
@@ -377,6 +377,8 @@ class App(ctk.CTk):
 
         # self.main_frame = MainFrame(self, user_data)
         self.main_frame = MinimalisticMainFrame(self, user_data)
+        self.minimalistic = True
+
         self.background_thread = self.start_background_thread()
 
     def auth_complete(self, user_data):
@@ -398,7 +400,7 @@ class App(ctk.CTk):
 
     def run_background_with_error_handling(self, network, song_queue):
         try:
-            run_background(network, song_queue)
+            run_background(network, song_queue, self.minimalistic)
         except Exception as e:
             logger.error('%s', e, exc_info=True)
             self.error_queue.put(e)

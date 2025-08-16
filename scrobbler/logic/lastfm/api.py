@@ -74,7 +74,7 @@ def get_avatar(username, network: pylast.LastFMNetwork):
             url = user.get_image()
             break
         except pylast.NetworkError:
-            logger.warning("Couldn't fetch user's avatar due to pylast.NetworkError, username: %s", username)
+            logger.warning("Couldn't fetch user's avatar url due to pylast.NetworkError, username: %s", username)
             continue
 
     if not url:

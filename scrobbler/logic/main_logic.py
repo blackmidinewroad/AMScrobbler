@@ -5,7 +5,7 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 from scrobbler.logic.am.app_scraper import get_data_from_AM_app
-from scrobbler.logic.am.web_scraper import update_data_using_AM_web
+from scrobbler.logic.am.web_scraper import WebScraper
 from scrobbler.logic.lastfm import api
 
 
@@ -68,11 +68,14 @@ def scrobble_at_exit():
 
 
 # Main function that checks for music currently playing in Apple Music Windows app, scrobbles songs
-def run_background(network, metadata_queue: queue.Queue):
+def run_background(network, metadata_queue: queue.Queue, minimalistic):
     # Global for scrobble at exit
     global prev_metadata, exit_network
     exit_network = network
     prev_metadata = {'id': ''}
+
+    web_scraper = WebScraper()
+
     while True:
         # Get current songs metadata
         cur_metadata = get_data_from_AM_app(prev_id=prev_metadata['id'], is_app_duration=prev_metadata.get('is_app_duration'))
@@ -95,8 +98,9 @@ def run_background(network, metadata_queue: queue.Queue):
             if is_scrobbable(prev_metadata):
                 api.scrobble_song(prev_metadata, network)
 
-            # Get duration and artwork
-            update_data_using_AM_web(cur_metadata)
+            # Get duration (if no duration from app) and artwork (if not minimalistic)
+            if not cur_metadata['is_app_duration'] or not minimalistic:
+                web_scraper.update_metadata_from_AM_web(cur_metadata, include_artwork=not minimalistic)
 
             prev_metadata = api.get_more_metadata(cur_metadata, network)
 
