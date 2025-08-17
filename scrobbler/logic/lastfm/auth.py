@@ -1,25 +1,19 @@
-import os
 import sys
 import time
 import webbrowser
 from pathlib import Path
 
 import pylast
-from dotenv import load_dotenv
 
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
+from config import Config
 from scrobbler.filework import load_user_data, save_user_data
 from scrobbler.logic.lastfm.api import get_user_url
-
-load_dotenv()
-
-API_KEY = os.getenv('API_KEY')
-API_SECRET = os.getenv('API_SECRET')
 
 
 # Send user to authentication web page, save session key, username and user's URL and return it with network
 def auth_without_session_key():
-    network = pylast.LastFMNetwork(API_KEY, API_SECRET)
+    network = pylast.LastFMNetwork(Config.API_KEY, Config.API_SECRET)
     skg = pylast.SessionKeyGenerator(network)
     url = skg.get_web_auth_url()
 
@@ -53,7 +47,7 @@ def auth_without_session_key():
 
 # Authenticate user with session and return users data from json
 def auth_with_session_key():
-    network = pylast.LastFMNetwork(API_KEY, API_SECRET)
+    network = pylast.LastFMNetwork(Config.API_KEY, Config.API_SECRET)
     user_data = load_user_data()
     network.session_key = user_data['session_key']
     user_data['network'] = network
