@@ -1,46 +1,51 @@
+import sys
+
 import numpy as np
 import psutil
 from PIL import Image, ImageDraw
 
 
-# Crop a circle out of image
 def make_circle(img):
+    """Return a circularly cropped version of the given image"""
+
     img = img.convert("RGB")
     np_image = np.array(img)
-    h, w = img.size
+    w, h = img.size
 
-    # Create same size alpha layer with circle
-    alpha = Image.new('L', img.size, 0)
+    # Create alpha mask
+    alpha = Image.new('L', (w, h), 0)
     draw = ImageDraw.Draw(alpha)
-    draw.pieslice([5, 5, h - 5, w - 5], 0, 360, fill=255)
+    draw.pieslice([5, 5, w - 5, h - 5], 0, 360, fill=255)
 
+    # Combine RGB image with alpha mask
     np_alpha = np.array(alpha)
     np_image = np.dstack((np_image, np_alpha))
 
     return Image.fromarray(np_image)
 
 
-# Check if image is a gif
-def is_gif(img):
-    try:
-        return getattr(img, "is_animated", False)
-    except:
-        return
+def is_gif(img) -> bool:
+    """Check if image is a gif by checking if 'is_animated' in it's attributes"""
+
+    return bool(getattr(img, "is_animated", False))
 
 
-# Get process id of a process
-def get_process_id(process_name):
+def get_process_id(process_name: str) -> int:
+    """Get process ID (PID) of a process using it's name"""
+
     for proc in psutil.process_iter(['pid', 'name']):
         if proc.info['name'] == process_name:
             return proc.info['pid']
 
+    return 0
 
-# If more than one process runs return None, else return True
-def is_one_instance(process_name):
+
+def single_instance(process_name: str) -> None:
+    """Make sure that only one instance of the app is running. If process is already running terminate program's execution"""
+
     n = 0
     for proc in psutil.process_iter(['pid', 'name']):
         if proc.info['name'] == process_name:
             n += 1
             if n == 2:
-                return
-    return True
+                sys.exit(1)

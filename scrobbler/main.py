@@ -8,15 +8,13 @@ import logging
 from scrobbler.filework import LOG_FILE
 from scrobbler.gui.gui import App
 from scrobbler.logic.main_logic import scrobble_at_exit
-from scrobbler.utils import is_one_instance
+from scrobbler.utils import single_instance
 
 logger = logging.getLogger(__name__)
 
 
 def main():
-    # Make sure that only one instance of the app is running
-    if not is_one_instance('AMScrobbler.exe'):
-        sys.exit(1)
+    single_instance('AMScrobbler.exe')
 
     logging.basicConfig(level=logging.WARNING, filename=LOG_FILE, format='[%(asctime)s] %(levelname)s: %(message)s')
 
