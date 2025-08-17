@@ -8,13 +8,13 @@ from config import Config
 
 
 def user_data_exists() -> bool:
-    """Check if there is a file with user's data"""
+    """Check if there is a file with user's data."""
 
     return os.path.exists(Config.USER_DATA_FILE)
 
 
 def load_user_data():
-    """Load user's data from json file"""
+    """Load user's data from json file."""
 
     if user_data_exists():
         with open(Config.USER_DATA_FILE, encoding='utf-8') as file:
@@ -22,7 +22,7 @@ def load_user_data():
 
 
 def save_user_data(user_data: dict) -> None:
-    """Save user's data to json file"""
+    """Save user's data to json file."""
 
     with open(Config.USER_DATA_FILE, 'w', encoding='utf-8') as out_file:
         json.dump(user_data, out_file, indent=2)

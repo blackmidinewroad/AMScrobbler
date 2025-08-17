@@ -16,7 +16,7 @@ class WebScraper:
         self.session = requests.Session()
 
     def build_search_url(self, title: str, artist: str, album: str) -> str:
-        """Build URL for searching using title of a song, artist name and album name"""
+        """Build URL for searching using title of a song, artist name and album name."""
 
         search = f'{title} {artist} {album}'
         encoded_search = quote(search, safe='')
@@ -24,7 +24,7 @@ class WebScraper:
         return f'https://music.apple.com/us/search?term={encoded_search}'
 
     def fetch_data(self, url: str, is_image: bool = False):
-        """Fetch HTML content from a URL, return soup or Image"""
+        """Fetch HTML content from a URL, return soup or Image."""
 
         try:
             response = self.session.get(url, timeout=10, stream=is_image)
@@ -38,7 +38,7 @@ class WebScraper:
             logger.warning("Couldn't fetch web page, URL: %s", url, exc_info=True)
 
     def update_metadata_from_AM_web(self, metadata: dict, include_artwork) -> None:
-        """Fetch duration of a song from Apple Music web"""
+        """Fetch duration of a song from Apple Music web."""
 
         song_search_url = self.build_search_url(metadata['title'], metadata['artist'], metadata['album'])
         search_soup = self.fetch_data(song_search_url)

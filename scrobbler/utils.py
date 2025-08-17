@@ -6,7 +6,7 @@ from PIL import Image, ImageDraw
 
 
 def make_circle(img):
-    """Return a circularly cropped version of the given image"""
+    """Return a circularly cropped version of the given image."""
 
     img = img.convert("RGB")
     np_image = np.array(img)
@@ -25,13 +25,13 @@ def make_circle(img):
 
 
 def is_gif(img) -> bool:
-    """Check if image is a gif by checking if 'is_animated' in it's attributes"""
+    """Check if image is a gif by checking if 'is_animated' in it's attributes."""
 
     return bool(getattr(img, "is_animated", False))
 
 
 def get_process_id(process_name: str) -> int:
-    """Get process ID (PID) of a process using it's name"""
+    """Get process ID (PID) of a process using it's name."""
 
     for proc in psutil.process_iter(['pid', 'name']):
         if proc.info['name'] == process_name:
@@ -41,7 +41,7 @@ def get_process_id(process_name: str) -> int:
 
 
 def single_instance(process_name: str) -> None:
-    """Make sure that only one instance of the app is running. If process is already running terminate program's execution"""
+    """Make sure that only one instance of the app is running. If process is already running terminate program's execution."""
 
     n = 0
     for proc in psutil.process_iter(['pid', 'name']):

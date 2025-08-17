@@ -81,7 +81,7 @@ class LoginFrame(ctk.CTkFrame):
     def poll_user_data(self):
         if self.user_data:
             # Haven't received session key in 3 minutes, let user try to relogin
-            if self.user_data['network'] == 'Runtime Error':
+            if 'expired' in self.user_data:
                 self.login_retry_label = ctk.CTkLabel(
                     self, width=200, height=100, text='What took you so long?\nTry to log in again', font=self.label_retry_font
                 )

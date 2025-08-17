@@ -23,8 +23,8 @@ def auth_without_session_key():
     while True:
         try:
             # If user didn't log in 3 minutes
-            if (time.perf_counter() - start) >= 190:
-                return ('Runtime Error', '')
+            if (time.perf_counter() - start) >= 180:
+                return {'expired': True}
 
             session_key, username = skg.get_web_auth_session_key_username(url)
             user_url = get_user_url(username, network)

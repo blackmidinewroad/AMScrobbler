@@ -14,7 +14,7 @@ class AppScraper:
         self.get_window()
 
     def get_window(self) -> None:
-        """Get Apple Music window using process ID"""
+        """Get Apple Music window using process ID."""
 
         pid = get_process_id('AppleMusic.exe')
         if not pid:
@@ -25,7 +25,7 @@ class AppScraper:
         self.main_window = app.window(title_re='.*Apple Music.*', visible_only=False)
 
     def convert_time_to_seconds(self, time_str: str) -> int:
-        """Convert string time to seconds (e.g. '2:04' -> 124)"""
+        """Convert string time to seconds (e.g. '2:04' -> 124)."""
 
         window_time_list = time_str.split(':')
         minutes, seconds = int(window_time_list[-2]), int(window_time_list[-1])
@@ -34,7 +34,7 @@ class AppScraper:
         return timedelta(hours=hours, minutes=minutes, seconds=seconds).seconds
 
     def get_duration_from_window(self) -> int:
-        """Get duration from progress bar of a song: get listening time and time left, then add them together"""
+        """Get duration from progress bar of a song: get listening time and time left, then add them together."""
 
         try:
             cur_time = self.main_window.child_window(auto_id="CurrentTime", control_type="Text").window_text()
@@ -47,7 +47,7 @@ class AppScraper:
         return duration
 
     def get_data_from_AM_app(self, prev_id: str, is_app_duration: bool) -> dict:
-        """Get data from Apple Music app using GUI"""
+        """Get data from Apple Music app using GUI."""
 
         if not self.main_window or not self.main_window.exists():
             self.get_window()
