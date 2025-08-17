@@ -29,12 +29,19 @@ def auth_without_session_key():
     while True:
         try:
             # If user didn't log in 3 minutes
-            if (time.perf_counter() - start) > 189:
+            if (time.perf_counter() - start) >= 190:
                 return ('Runtime Error', '')
 
             session_key, username = skg.get_web_auth_session_key_username(url)
             user_url = get_user_url(username, network)
-            save_user_data(session_key, username, user_url)
+
+            user_data = {
+                'session_key': session_key,
+                'username': username,
+                'user_url': user_url,
+            }
+            save_user_data(user_data)
+
             break
         except pylast.WSError:
             time.sleep(1)

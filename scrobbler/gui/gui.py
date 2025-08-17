@@ -222,9 +222,7 @@ class MainFrame(ctk.CTkFrame):
             self.song_frame.configure(fg_color='#303030')
 
             # Display song's artwork, if no artwork display placeholder image
-            artwork_image = ctk.CTkImage(
-                playing_now.get('artwork', filework.load_image(filework.get_image_path('no_artwork.jpg'))), size=(50, 50)
-            )
+            artwork_image = ctk.CTkImage(playing_now.get('artwork', filework.load_image('no_artwork.jpg')), size=(50, 50))
 
             self.title_font.configure(size=20)
             self.artwork_image_label.configure(image=artwork_image)
@@ -321,7 +319,7 @@ class Tray(pystray.Icon):
         super().__init__(master)
 
         self.master = master
-        self.image = filework.load_image(filework.get_image_path('combined_icon2.png'))
+        self.image = filework.load_image('combined_icon2.png')
         self.menu = pystray.Menu(
             pystray.MenuItem(text='Open', action=self.show_window, default=True), pystray.MenuItem('Exit', self.on_tray_quit)
         )

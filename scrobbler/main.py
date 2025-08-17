@@ -1,10 +1,9 @@
 import atexit
+import logging
 import sys
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parent.parent))
-import logging
-
 from scrobbler.filework import LOG_FILE
 from scrobbler.gui.gui import App
 from scrobbler.logic.main_logic import scrobble_at_exit

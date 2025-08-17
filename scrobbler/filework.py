@@ -14,35 +14,28 @@ USER_DATA_FILE = os.path.join(AM_SCROBBLER_DATA_DIR, 'lastfm_user_data.json')
 LOG_FILE = os.path.join(AM_SCROBBLER_DATA_DIR, 'am_scrobbler.log')
 
 
-# Load user's data from json
+def user_data_exists() -> bool:
+    """Check if there is a file with user's data"""
+
+    return os.path.exists(USER_DATA_FILE)
+
+
 def load_user_data():
-    if os.path.exists(USER_DATA_FILE):
+    """Load user's data from json file"""
+
+    if user_data_exists():
         with open(USER_DATA_FILE, encoding='utf-8') as file:
             return json.load(file)
 
 
-# Save user's data to json
-def save_user_data(session_key, username, user_url):
-    data = {}
-    if os.path.exists(USER_DATA_FILE):
-        with open(USER_DATA_FILE, encoding='utf-8') as file:
-            data = json.load(file)
-
-    data['session_key'] = session_key
-    data['username'] = username
-    data['user_url'] = user_url
+def save_user_data(user_data: dict) -> None:
+    """Save user's data to json file"""
 
     with open(USER_DATA_FILE, 'w', encoding='utf-8') as out_file:
-        json.dump(data, out_file, indent=2)
+        json.dump(user_data, out_file, indent=2)
 
 
-# Does file with user's data exists
-def user_data_exists():
-    return os.path.exists(USER_DATA_FILE)
-
-
-# Get image file
-def get_image_path(filename):
+def get_image_path(filename: str) -> str:
     if hasattr(sys, '_MEIPASS'):
         # Running in the PyInstaller bundle
         base_path = sys._MEIPASS
@@ -53,8 +46,9 @@ def get_image_path(filename):
     return os.path.join(base_path, 'icons', filename)
 
 
-# Load user's avatar
-def load_image(filepath):
+def load_image(filename: str):
+    filepath = get_image_path(filename)
+
     if os.path.exists(filepath):
         with Image.open(filepath) as img:
             img.load()
