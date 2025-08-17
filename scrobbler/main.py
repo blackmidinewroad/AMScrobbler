@@ -1,4 +1,3 @@
-import atexit
 import logging
 import sys
 from pathlib import Path
@@ -6,7 +5,6 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 from config import Config, ensure_directories
 from scrobbler.gui.gui import App
-from scrobbler.logic.main_logic import scrobble_at_exit
 from scrobbler.utils import single_instance
 
 logger = logging.getLogger(__name__)
@@ -20,7 +18,6 @@ def main():
     logging.basicConfig(level=logging.WARNING, filename=Config.LOG_FILE, format='[%(asctime)s] %(levelname)s: %(message)s')
 
     app = App()
-    atexit.register(scrobble_at_exit)
     app.mainloop()
 
 

@@ -6,7 +6,7 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 from scrobbler.logic.am.app_scraper import AppScraper
 from scrobbler.logic.am.web_scraper import WebScraper
-from scrobbler.logic.lastfm import api
+from scrobbler.logic.lastfm.api import Lastfm
 
 
 # Check if we can scrobble track (song exists and playtime more than a half of runtime of a song)
@@ -29,11 +29,11 @@ def increase_playtime(metadata, playing_now):
 
 
 # If listening to the same song several times in a row - scrobble and then reset timestamp and playtime, mark as now playing on last.fm
-def handle_relistening(metadata, network):
+def handle_relistening(metadata, lastfm: Lastfm):
     if is_re_scrobbable(metadata):
-        api.scrobble_song(metadata, network)
+        lastfm.scrobble_song(metadata)
         metadata['timestamp'], metadata['playtime'] = int(time.time()), 0
-        api.set_now_playing(metadata, network)
+        lastfm.set_now_playing(metadata)
 
 
 # Add current song's info to queue so it can be displayed
@@ -43,11 +43,11 @@ def update_queue(metadata_queue: queue.Queue, prev_metadata):
 
 
 # If no metadata from Apple Music app - try to scrobble last song and empty prev_metadata
-def handle_no_metadata(prev_metadata, metadata_queue, network):
+def handle_no_metadata(prev_metadata, metadata_queue, lastfm: Lastfm):
     update_queue(metadata_queue, False)
 
     if is_scrobbable(prev_metadata):
-        api.scrobble_song(prev_metadata, network)
+        lastfm.scrobble_song(prev_metadata)
 
     prev_metadata.clear()
     prev_metadata['id'] = ''
@@ -56,10 +56,10 @@ def handle_no_metadata(prev_metadata, metadata_queue, network):
 
 
 # Scrobble song at exit if possible
-def scrobble_at_exit():
+def scrobble_at_exit(lastfm: Lastfm):
     try:
         if is_scrobbable(prev_metadata):
-            api.scrobble_song(prev_metadata, exit_network)
+            lastfm.scrobble_song(prev_metadata)
 
     # Closed before background started running, so there are no prev_metadata and network
     except NameError:
@@ -67,10 +67,9 @@ def scrobble_at_exit():
 
 
 # Main function that checks for music currently playing in Apple Music Windows app, scrobbles songs
-def run_background(network, metadata_queue: queue.Queue, minimalistic):
+def run_background(metadata_queue: queue.Queue, minimalistic, lastfm: Lastfm):
     # Global for scrobble at exit
-    global prev_metadata, exit_network
-    exit_network = network
+    global prev_metadata
     prev_metadata = {'id': ''}
 
     app_scraper = AppScraper()
@@ -82,7 +81,7 @@ def run_background(network, metadata_queue: queue.Queue, minimalistic):
 
         # No song in Apple Music window
         if not cur_metadata or cur_metadata == 'X':
-            handle_no_metadata(prev_metadata, metadata_queue, network)
+            handle_no_metadata(prev_metadata, metadata_queue, lastfm)
             continue
 
         # Try to set duration from the app
@@ -96,19 +95,19 @@ def run_background(network, metadata_queue: queue.Queue, minimalistic):
 
             # Scrobble last song if possible
             if is_scrobbable(prev_metadata):
-                api.scrobble_song(prev_metadata, network)
+                lastfm.scrobble_song(prev_metadata)
 
             # Get duration (if no duration from app) and artwork (if not minimalistic)
             if not cur_metadata['is_app_duration'] or not minimalistic:
                 web_scraper.update_metadata_from_AM_web(cur_metadata, include_artwork=not minimalistic)
 
-            prev_metadata = api.get_more_metadata(cur_metadata, network)
+            prev_metadata = lastfm.fetch_metadata(cur_metadata)
 
             # If new song is playing - get start of a listen, mark as started playing, mark as now_playing on last.fm
             if cur_metadata['playing']:
                 prev_metadata['timestamp'], prev_metadata['last_played'] = int(cur_time), cur_time
                 started_playing = True
-                api.set_now_playing(prev_metadata, network)
+                lastfm.set_now_playing(prev_metadata)
 
             # If new song is paused - mark as not started playing
             else:
@@ -126,7 +125,7 @@ def run_background(network, metadata_queue: queue.Queue, minimalistic):
 
             # If song was paused - mark as keep playing
             if not prev_metadata['playing']:
-                api.set_now_playing(prev_metadata, network)
+                lastfm.set_now_playing(prev_metadata)
                 prev_metadata['playing'] = True
 
             # If it's a start of a listen - get time and mark as started playing
@@ -136,7 +135,7 @@ def run_background(network, metadata_queue: queue.Queue, minimalistic):
 
             increase_playtime(prev_metadata, cur_metadata['playing'])
 
-            handle_relistening(prev_metadata, network)
+            handle_relistening(prev_metadata, lastfm)
 
         # If song is the same but paused (increase will happen if last time checked song was playing)
         else:
