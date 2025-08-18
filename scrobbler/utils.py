@@ -49,3 +49,12 @@ def single_instance(process_name: str) -> None:
             n += 1
             if n == 2:
                 sys.exit(1)
+
+
+def truncate_text(text: str, max_chars: int) -> str:
+    """Truncate text to a maximum length, appending '...' if truncated."""
+
+    if len(text) <= max_chars:
+        return text
+
+    return text[: max_chars - 3] + '...'
