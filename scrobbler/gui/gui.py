@@ -20,20 +20,20 @@ from scrobbler.utils import is_gif, make_circle
 logger = logging.getLogger(__name__)
 
 
-# Login frame class. Has name of the app and button to log in
 class LoginFrame(ctk.CTkFrame):
-    def __init__(self, master, lastfm: Lastfm, retry=''):
-        super().__init__(master)
+    """Displays `log in` button that authenticates user."""
 
+    def __init__(self, app, lastfm: Lastfm, retry: bool = False, force_auth_without_sk: bool = False):
+        super().__init__(app)
+
+        self.app = app
         self.lastfm = lastfm
-        self.is_success = None
-
-        self.master = master
-        self.master.geometry('400x500')
-
         self.retry = retry
-        self.login_retry_label = None
+        self.force_auth_without_sk = force_auth_without_sk
 
+        self.auth_complete = None
+
+        self.grid(row=0, column=0, padx=10, pady=(10, 10))
         self.configure(fg_color='transparent')
 
         self.label_font = ctk.CTkFont(family='SF Pro Display', size=30, weight='bold')
@@ -43,11 +43,15 @@ class LoginFrame(ctk.CTkFrame):
         self.login_label = ctk.CTkLabel(self, width=200, height=100, text='Apple Music\nlast.fm scrobbler', font=self.label_font)
         self.login_label.grid(row=0, column=0, pady=(0, 60))
 
-        if self.retry:
+        self.retry_msg = 'Something went wrong'
+
+        if self.force_auth_without_sk:
             self.login_retry_label = ctk.CTkLabel(
-                self, width=200, height=100, text='Something went wrong\nTry to log in again', font=self.label_retry_font
+                self, width=200, height=100, text=f'{self.retry_msg}\nTry to log in again', font=self.label_retry_font
             )
             self.login_retry_label.grid(row=1, column=0, pady=(0, 20))
+        else:
+            self.login_retry_label = None
 
         self.button = ctk.CTkButton(
             self,
@@ -56,50 +60,48 @@ class LoginFrame(ctk.CTkFrame):
             text='Log in',
             command=self.start_auth_thread,
             fg_color='#FF4E6B',
-            hover_color='#FF0436',
+            hover_color="#E6455F",
             corner_radius=20,
             font=self.button_font,
             text_color_disabled=('#DCE4EE', '#DCE4EE'),
         )
         self.button.grid(row=2, column=0, pady=(0, 50))
 
-    def start_auth_thread(self):
-        self.button.configure(state='disabled', text='waiting...', fg_color='#FF0436')
+    def start_auth_thread(self) -> None:
+        self.button.configure(state='disabled', text='waiting...', fg_color='#E6455F')
         if self.login_retry_label:
             self.login_retry_label.destroy()
 
         self.auth_thread = threading.Thread(target=self.auth_process, daemon=True).start()
 
-        self.poll_user_data()
+        self.poll_auth()
 
-    def auth_process(self):
-        if not filework.user_data_exists() or not self.retry or self.retry == 'force_auth_without_session_key':
-            self.is_success = self.lastfm.auth_without_session_key()
-            self.retry_msg = 'What took you so long?\n'
+    def auth_process(self) -> None:
+        if not filework.user_data_exists() or not self.retry or self.force_auth_without_sk:
+            self.auth_complete = self.lastfm.auth_without_session_key()
+            self.retry_msg = 'What took you so long?'
         else:
-            self.is_success = self.lastfm.auth_with_session_key()
-            if not self.is_success:
-                self.retry = 'force_auth_without_session_key'
-                self.retry_msg = ''
+            self.auth_complete = self.lastfm.auth_with_session_key()
+            if not self.auth_complete:
+                self.force_auth_without_sk = True
+                self.retry_msg = 'Something went wrong'
 
-    # Checking if user logged in and we got user's data
-    def poll_user_data(self):
-        if self.is_success is not None:
-            if self.is_success:
+    def poll_auth(self) -> None:
+        """Poll for auth to be completed. If auth unsuccessful let user try to log in again."""
+
+        if self.auth_complete is not None:
+            if self.auth_complete:
                 self.button.configure(text='Logged in!', fg_color='#4CAF50')
-                # Callback method to let app know that user logged in
-                self.master.auth_complete()
+                self.app.auth_complete()
             else:
-                # Haven't received session key in 3 minutes, let user try to relogin
                 self.login_retry_label = ctk.CTkLabel(
-                    self, width=200, height=100, text=f'{self.retry_msg}Try to log in again', font=self.label_retry_font
+                    self, width=200, height=100, text=f'{self.retry_msg}\nTry to log in again', font=self.label_retry_font
                 )
                 self.login_retry_label.grid(row=1, column=0, pady=(0, 20))
                 self.button.configure(state='normal', text='Log in', fg_color='#FF4E6B')
-                self.is_success = None
-        # Waiting for user to log in, check in again in 0.5 seconds
+                self.auth_complete = None
         else:
-            self.after(500, self.poll_user_data)
+            self.after(500, self.poll_auth)
 
 
 # GIF label class to display gifs
@@ -137,7 +139,6 @@ def shorten_text(text, max_chars):
     return text if len(text) < max_chars else text[:max_chars] + '...'
 
 
-# Main frame class
 class MainFrame(ctk.CTkFrame):
     def __init__(self, master, song: Song, lastfm: Lastfm):
         super().__init__(master)
@@ -183,7 +184,7 @@ class MainFrame(ctk.CTkFrame):
             cursor='hand2',
         )
         self.user_label.bind('<Button-1>', command=lambda x: webbrowser.open(lastfm.user_url))
-        self.user_label.bind("<Enter>", command=lambda x: self.user_label.configure(text_color='#FF0436'))
+        self.user_label.bind("<Enter>", command=lambda x: self.user_label.configure(text_color='#E6455F'))
         self.user_label.bind("<Leave>", command=lambda x: self.user_label.configure(text_color='#FF4E6B'))
         self.user_label.grid(row=0, column=0, padx=(10, 0), pady=(5, 5), sticky='nsew')
 
@@ -257,7 +258,6 @@ class MainFrame(ctk.CTkFrame):
         self.after(1000, self.update_now_playing, self.song.metadata['id'], self.song.metadata['playing'])
 
 
-# Minimalistic main frame class
 class MinimalisticMainFrame(ctk.CTkFrame):
     def __init__(self, master, song: Song, lastfm: Lastfm):
         super().__init__(master)
@@ -289,7 +289,7 @@ class MinimalisticMainFrame(ctk.CTkFrame):
             cursor='hand2',
         )
         self.user_label.bind('<Button-1>', command=lambda x: webbrowser.open(lastfm.user_url))
-        self.user_label.bind("<Enter>", command=lambda x: self.user_label.configure(text_color='#FF0436'))
+        self.user_label.bind("<Enter>", command=lambda x: self.user_label.configure(text_color='#E6455F'))
         self.user_label.bind("<Leave>", command=lambda x: self.user_label.configure(text_color='#FF4E6B'))
         self.user_label.grid(row=0, column=0, padx=(10, 10), pady=(5, 5), sticky='nsew')
 
@@ -332,7 +332,6 @@ class MinimalisticMainFrame(ctk.CTkFrame):
         self.after(1000, self.update_now_playing, self.song.metadata['id'], self.song.metadata['playing'])
 
 
-# Tray class
 class Tray(pystray.Icon):
     def __init__(self, master):
         super().__init__(master)
@@ -352,7 +351,6 @@ class Tray(pystray.Icon):
         self.master.quit()
 
 
-# Main app class
 class App(ctk.CTk):
     def __init__(self):
         super().__init__()
@@ -376,7 +374,7 @@ class App(ctk.CTk):
             if is_success:
                 self.show_main_frame()
             else:
-                self.show_login_frame(retry='force_auth_without_session_key')
+                self.show_login_frame(force_auth_without_sk=True)
         else:
             self.show_login_frame()
 
@@ -386,9 +384,8 @@ class App(ctk.CTk):
 
         atexit.register(scrobble_at_exit, self.song, self.lastfm)
 
-    def show_login_frame(self, retry=False):
-        self.login_frame = LoginFrame(self, self.lastfm, retry)
-        self.login_frame.grid(row=0, column=0, padx=10, pady=(10, 10))
+    def show_login_frame(self, force_auth_without_sk=False):
+        self.login_frame = LoginFrame(self, self.lastfm, force_auth_without_sk=force_auth_without_sk)
 
     def show_main_frame(self):
         # # Add user's avatar to data (not minimalistic)
@@ -428,11 +425,8 @@ class App(ctk.CTk):
         try:
             error = self.error_queue.get_nowait()
             self.main_frame.destroy()
-            if 'Invalid session key' in str(error):
-                retry_message = 'force_auth_without_session_key'
-            else:
-                retry_message = 'Unknown'
-            self.show_login_frame(retry=retry_message)
+            force_auth_without_sk = 'Invalid session key' in str(error)
+            self.show_login_frame(force_auth_without_sk=force_auth_without_sk)
         except queue.Empty:
             pass
 
