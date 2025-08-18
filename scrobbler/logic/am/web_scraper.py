@@ -1,12 +1,17 @@
 import json
 import logging
+import sys
 from io import BytesIO
+from pathlib import Path
 from urllib.parse import quote
 
 import requests
 from bs4 import BeautifulSoup
 from PIL import Image
 from requests.exceptions import HTTPError, RequestException, Timeout
+
+sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
+from scrobbler.logic.song import Song
 
 logger = logging.getLogger(__name__)
 
@@ -37,10 +42,10 @@ class WebScraper:
         except (HTTPError, Timeout, RequestException):
             logger.warning("Couldn't fetch web page, URL: %s", url, exc_info=True)
 
-    def update_metadata_from_AM_web(self, metadata: dict, include_artwork) -> None:
+    def update_metadata_from_AM_web(self, song: Song, include_artwork) -> None:
         """Fetch duration of a song from Apple Music web."""
 
-        song_search_url = self.build_search_url(metadata['title'], metadata['artist'], metadata['album'])
+        song_search_url = self.build_search_url(song.metadata['title'], song.metadata['artist'], song.metadata['album'])
         search_soup = self.fetch_data(song_search_url)
         if not search_soup:
             return
@@ -67,13 +72,13 @@ class WebScraper:
         json_album_data = json.loads(script_tag.text)[0]
 
         # If no duration from AM app - then update duration
-        if not metadata['is_app_duration']:
+        if not song.metadata['is_app_duration']:
             track_list = json_album_data.get('data', {}).get('sections', [{}, {}])[1].get('items', [])
             for track in track_list:
                 if track.get('isProminent'):
                     duration = track.get('duration', 0) // 1000
                     if duration:
-                        metadata['duration'] = duration
+                        song.metadata['duration'] = duration
 
         if include_artwork:
             # Get album's artwork
@@ -82,4 +87,4 @@ class WebScraper:
             )
             if artwork_data and (artwork_url := artwork_data.get('url')):
                 artwork_url = artwork_url.format(w=50, h=50, f='jpg')
-                metadata['artwork'] = self.fetch_data(artwork_url, is_image=True)
+                song.metadata['artwork'] = self.fetch_data(artwork_url, is_image=True)

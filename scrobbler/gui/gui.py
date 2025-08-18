@@ -9,12 +9,12 @@ from pathlib import Path
 import customtkinter as ctk
 import pystray
 from PIL import Image
-from pylast import WSError
 
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 from scrobbler import filework
 from scrobbler.logic.lastfm.api import Lastfm
 from scrobbler.logic.main_logic import run_background, scrobble_at_exit
+from scrobbler.logic.song import Song
 from scrobbler.utils import is_gif, make_circle
 
 logger = logging.getLogger(__name__)
@@ -139,8 +139,10 @@ def shorten_text(text, max_chars):
 
 # Main frame class
 class MainFrame(ctk.CTkFrame):
-    def __init__(self, master, lastfm: Lastfm):
+    def __init__(self, master, song: Song, lastfm: Lastfm):
         super().__init__(master)
+
+        self.song = song
 
         self.playing_gif, self.title_label, self.artist_label = None, None, None
         self.master = master
@@ -216,41 +218,51 @@ class MainFrame(ctk.CTkFrame):
         self.artist_label = ctk.CTkLabel(self.song_frame, text='', font=self.artist_font, text_color='#A9A9A9')
         self.artist_label.grid(row=1, column=1, padx=(0, 5), sticky='we')
 
+        self.update_now_playing(prev_id='', is_prev_playing=False)
+
     # Set frame to now playing or no music
-    def update_now_playing(self, playing_now):
-        if playing_now:
-            self.pause_gif_label.grid_remove()
-            self.playing_gif.grid()
+    def update_now_playing(self, prev_id, is_prev_playing):
+        if self.song.metadata['id'] != prev_id or self.song.metadata['playing'] != is_prev_playing:
+            if self.song.metadata['playing']:
+                self.pause_gif_label.grid_remove()
+                self.playing_gif.grid()
 
-            self.song_frame.configure(fg_color='#303030')
+                self.song_frame.configure(fg_color='#303030')
 
-            # Display song's artwork, if no artwork display placeholder image
-            artwork_image = ctk.CTkImage(playing_now.get('artwork', filework.load_image('no_artwork.jpg')), size=(50, 50))
+                # Display song's artwork, if no artwork display placeholder image
+                artwork = (
+                    self.song.metadata['artwork'] if self.song.metadata['artwork'] is not None else filework.load_image('no_artwork.jpg')
+                )
+                artwork_image = ctk.CTkImage(artwork, size=(50, 50))
 
-            self.title_font.configure(size=20)
-            self.artwork_image_label.configure(image=artwork_image)
-            self.artwork_image_label.grid()
+                self.title_font.configure(size=20)
+                self.artwork_image_label.configure(image=artwork_image)
+                self.artwork_image_label.grid()
 
-            self.title_label.configure(text=shorten_text(playing_now['title'], 26))
-            self.title_label.grid()
+                self.title_label.configure(text=shorten_text(self.song.metadata['title'], 26))
+                self.title_label.grid()
 
-            self.artist_label.configure(text=shorten_text(playing_now['artist'], 30))
-            self.artist_label.grid()
-        else:
-            if self.playing_gif.grid_info():
-                self.playing_gif.grid_remove()
-                self.pause_gif_label.grid()
-                self.song_frame.configure(fg_color='transparent')
-                self.title_font.configure(size=25)
-                self.title_label.configure(text='No music((')
-                self.artist_label.grid_remove()
-                self.artwork_image_label.grid_remove()
+                self.artist_label.configure(text=shorten_text(self.song.metadata['artist'], 30))
+                self.artist_label.grid()
+            else:
+                if self.playing_gif.grid_info():
+                    self.playing_gif.grid_remove()
+                    self.pause_gif_label.grid()
+                    self.song_frame.configure(fg_color='transparent')
+                    self.title_font.configure(size=25)
+                    self.title_label.configure(text='No music((')
+                    self.artist_label.grid_remove()
+                    self.artwork_image_label.grid_remove()
+
+        self.after(1000, self.update_now_playing, self.song.metadata['id'], self.song.metadata['playing'])
 
 
 # Minimalistic main frame class
 class MinimalisticMainFrame(ctk.CTkFrame):
-    def __init__(self, master, lastfm: Lastfm):
+    def __init__(self, master, song: Song, lastfm: Lastfm):
         super().__init__(master)
+
+        self.song = song
 
         self.title_label, self.artist_label = None, None
         self.master = master
@@ -296,23 +308,28 @@ class MinimalisticMainFrame(ctk.CTkFrame):
         self.artist_label = ctk.CTkLabel(self.song_frame, text='', font=self.artist_font, text_color='#A9A9A9')
         self.artist_label.grid(row=1, column=0, padx=(0, 5), sticky='we')
 
+        self.update_now_playing(prev_id='', is_prev_playing=False)
+
     # Set frame to now playing or no music
-    def update_now_playing(self, playing_now):
-        if playing_now:
-            self.title_font.configure(size=20)
+    def update_now_playing(self, prev_id, is_prev_playing):
+        if self.song.metadata['id'] != prev_id or self.song.metadata['playing'] != is_prev_playing:
+            if self.song.metadata['playing']:
+                self.title_font.configure(size=20)
 
-            self.title_label.configure(text=shorten_text(playing_now['title'], 35))
-            self.title_label.grid_configure(pady=(0, 0))
-            self.title_label.grid()
+                self.title_label.configure(text=shorten_text(self.song.metadata['title'], 35))
+                self.title_label.grid_configure(pady=(0, 0))
+                self.title_label.grid()
 
-            self.artist_label.configure(text=shorten_text(playing_now['artist'], 38))
-            self.artist_label.grid()
-        else:
-            if not self.title_label.cget('text') == self.pause_text:
-                self.title_font.configure(size=25)
-                self.title_label.configure(text=self.pause_text)
-                self.title_label.grid_configure(pady=(10, 0))
-                self.artist_label.grid_remove()
+                self.artist_label.configure(text=shorten_text(self.song.metadata['artist'], 38))
+                self.artist_label.grid()
+            else:
+                if not self.title_label.cget('text') == self.pause_text:
+                    self.title_font.configure(size=25)
+                    self.title_label.configure(text=self.pause_text)
+                    self.title_label.grid_configure(pady=(10, 0))
+                    self.artist_label.grid_remove()
+
+        self.after(1000, self.update_now_playing, self.song.metadata['id'], self.song.metadata['playing'])
 
 
 # Tray class
@@ -352,6 +369,7 @@ class App(ctk.CTk):
         self.error_queue, self.song_queue = queue.Queue(), queue.Queue()
 
         self.lastfm = Lastfm()
+        self.song = Song()
 
         if filework.user_data_exists():
             is_success = self.lastfm.auth_with_session_key()
@@ -364,10 +382,9 @@ class App(ctk.CTk):
 
         self.start_tray_icon_thread()
 
-        self.poll_song()
         self.check_for_errors()
 
-        atexit.register(scrobble_at_exit, self.lastfm)
+        atexit.register(scrobble_at_exit, self.song, self.lastfm)
 
     def show_login_frame(self, retry=False):
         self.login_frame = LoginFrame(self, self.lastfm, retry)
@@ -377,9 +394,9 @@ class App(ctk.CTk):
         # # Add user's avatar to data (not minimalistic)
         # self.lastfm.set_avatar()
 
-        # self.main_frame = MainFrame(self, self.lastfm)
+        # self.main_frame = MainFrame(self, self.song, self.lastfm)
 
-        self.main_frame = MinimalisticMainFrame(self, self.lastfm)
+        self.main_frame = MinimalisticMainFrame(self, self.song, self.lastfm)
 
         self.minimalistic = True
 
@@ -390,7 +407,7 @@ class App(ctk.CTk):
         self.show_main_frame()
 
     def start_background_thread(self):
-        threading.Thread(target=self.run_background_with_error_handling, args=[self.song_queue], daemon=True).start()
+        threading.Thread(target=self.run_background_with_error_handling, daemon=True).start()
 
     def start_tray_icon_thread(self):
         self.tray_icon = Tray(self).icon
@@ -399,9 +416,9 @@ class App(ctk.CTk):
     def hide_window(self):
         self.withdraw()
 
-    def run_background_with_error_handling(self, song_queue):
+    def run_background_with_error_handling(self):
         try:
-            run_background(song_queue, self.minimalistic, self.lastfm)
+            run_background(self.minimalistic, self.song, self.lastfm)
         except Exception as e:
             logger.error('%s', e, exc_info=True)
             self.error_queue.put(e)
@@ -420,14 +437,3 @@ class App(ctk.CTk):
             pass
 
         self.after(5000, self.check_for_errors)
-
-    # Get current playing song
-    def poll_song(self):
-        try:
-            playing_now = self.song_queue.get_nowait()
-            self.main_frame.update_now_playing(playing_now)
-        except queue.Empty:
-            pass
-
-        # Continue polling
-        self.after(500, self.poll_song)

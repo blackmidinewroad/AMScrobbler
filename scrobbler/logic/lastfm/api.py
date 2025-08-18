@@ -10,6 +10,7 @@ sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 from config import Config
 from scrobbler.filework import load_user_data, save_user_data
 from scrobbler.logic.am.web_scraper import WebScraper
+from scrobbler.logic.song import Song
 from scrobbler.utils import is_gif, make_circle
 
 logger = logging.getLogger(__name__)
@@ -104,56 +105,56 @@ class Lastfm:
 
         return True
 
-    def set_now_playing(self, metadata: dict) -> None:
+    def set_now_playing(self, song: Song) -> None:
         """Mark song as now_playing on last.fm."""
 
         try:
             self.network.update_now_playing(
-                title=metadata['title'],
-                artist=metadata['artist'],
-                album=metadata['album'],
-                duration=metadata['duration'],
+                title=song.metadata['title'],
+                artist=song.metadata['artist'],
+                album=song.metadata['album'],
+                duration=song.metadata['duration'],
             )
         except pylast.NetworkError:
-            logger.warning("Couldn't set 'now playing' for the song due to pylast.NetworkError, song metadata: %s", metadata)
+            logger.warning("Couldn't set 'now playing' for the song due to pylast.NetworkError, song metadata: %s", song.metadata)
             pass
 
-    def scrobble_song(self, metadata: dict) -> None:
+    def scrobble_song(self, song: Song) -> None:
         for _ in range(5):
             try:
                 self.network.scrobble(
-                    title=metadata['title'],
-                    artist=metadata['artist'],
-                    album=metadata['album'],
-                    timestamp=metadata['timestamp'],
+                    title=song.state['title'],
+                    artist=song.state['artist'],
+                    album=song.state['album'],
+                    timestamp=song.state['started_playing_timestamp'],
                 )
                 break
             except pylast.NetworkError:
-                logger.warning("Couldn't scrobble the song due to pylast.NetworkError, song metadata: %s", metadata)
+                logger.warning("Couldn't scrobble the song due to pylast.NetworkError, song metadata: %s", song.state)
                 continue
 
-    def fetch_metadata(self, metadata: dict) -> dict:
+    def update_metadata(self, song: Song) -> None:
         """Update song metadata with data from last.fm. Correct title and artist name if possible, get duration of a track."""
 
         try:
-            track = self.network.get_track(metadata['artist'], metadata['title'])
-            artist = self.network.get_artist(metadata['artist'])
+            track = self.network.get_track(song.metadata['artist'], song.metadata['title'])
+            artist = self.network.get_artist(song.metadata['artist'])
 
             corrected_track, corrected_artist = track.get_correction(), artist.get_correction()
-            metadata['artist'] = corrected_track if corrected_track else metadata['title']
-            metadata['artist'] = corrected_artist if corrected_artist else metadata['artist']
+            if corrected_track:
+                song.metadata['title'] = corrected_track
+            if corrected_artist:
+                song.metadata['artist'] = corrected_artist
 
             duration = track.get_duration() // 1000
         except (pylast.WSError, pylast.NetworkError):
             duration = 0
 
         # If no duration neither from progress bar or AM web - set duration from last.fm
-        if not metadata['duration']:
+        if not song.metadata['duration']:
             if duration:
-                metadata['duration'] = duration
+                song.metadata['duration'] = duration
 
             # If even on last.fm no duration set it as 2 minutes
             else:
-                metadata['duration'] = 120
-
-        return metadata
+                song.metadata['duration'] = 120
