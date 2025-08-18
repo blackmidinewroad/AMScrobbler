@@ -12,15 +12,16 @@ from scrobbler.logic.lastfm.api import Lastfm
 class LoginFrame(ctk.CTkFrame):
     """Displays `log in` button that authenticates user."""
 
-    def __init__(self, app, lastfm: Lastfm, retry: bool = False, force_auth_without_sk: bool = False):
+    def __init__(self, app, lastfm: Lastfm, force_auth_without_sk: bool = False):
         super().__init__(app)
 
         self.app = app
         self.lastfm = lastfm
-        self.retry = retry
         self.force_auth_without_sk = force_auth_without_sk
 
         self.auth_complete = None
+
+        self.app.geometry('400x500')
 
         self.grid(row=0, column=0, padx=10, pady=(10, 10))
         self.configure(fg_color='transparent')
@@ -66,7 +67,7 @@ class LoginFrame(ctk.CTkFrame):
         self.poll_auth()
 
     def auth_process(self) -> None:
-        if not filework.user_data_exists() or not self.retry or self.force_auth_without_sk:
+        if not filework.user_data_exists() or self.force_auth_without_sk:
             self.auth_complete = self.lastfm.auth_without_session_key()
             self.retry_msg = 'What took you so long?'
         else:
