@@ -1,4 +1,9 @@
 class Song:
+    """Represents song that currently visible in Apple Music app.
+    Has 2 main attributes - `metadata`: dict with information about the song (e.g. title, artist, artwork)
+    and `state`: dict with the state of the song in AM app (e.g. playing, playtime).
+    """
+
     def __init__(self):
         self.metadata = {}
         self.reset_metadata()
