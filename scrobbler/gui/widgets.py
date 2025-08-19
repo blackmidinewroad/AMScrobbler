@@ -1,35 +1,37 @@
 import customtkinter as ctk
-from PIL import Image
 
 from scrobbler.utils import make_circle
 
 
-# GIF label class to display gifs
 class GIFLabel(ctk.CTkLabel):
-    def __init__(self, master, img, crop_circle=False, obj=False, **kwargs):
-        self._gif_image = img if obj else Image.open(img)
+    """A label widget that displays and animates a GIF image frame by frame."""
 
-        kwargs.setdefault('width', self._gif_image.width)
-        kwargs.setdefault('height', self._gif_image.height)
+    def __init__(self, master, gif, crop_circle=False, **kwargs):
+        kwargs.setdefault('width', gif.width)
+        kwargs.setdefault('height', gif.height)
         kwargs.setdefault('text', '')
-        self._duration = kwargs.pop('duration', None) or self._gif_image.info['duration']
-        self.crop_circle = crop_circle
 
         super().__init__(master, **kwargs)
 
-        self._frames = []
-        for i in range(self._gif_image.n_frames):
-            self._gif_image.seek(i)
+        self.gif = gif
+        self.crop_circle = crop_circle
+        self.duration = gif.info['duration']
+        self.frames = []
+        self._set_frames()
+
+    def _set_frames(self) -> None:
+        """Extract all frames of the GIF and store them as CTkImages."""
+
+        for frame in range(self.gif.n_frames):
+            self.gif.seek(frame)
             if self.crop_circle:
-                self._frames.append(ctk.CTkImage(make_circle(self._gif_image).copy(), size=(self['width'], self['height'])))
+                self.frames.append(ctk.CTkImage(make_circle(self.gif).copy(), size=(self['width'], self['height'])))
             else:
-                self._frames.append(ctk.CTkImage(self._gif_image.copy(), size=(self['width'], self['height'])))
+                self.frames.append(ctk.CTkImage(self.gif.copy(), size=(self['width'], self['height'])))
 
-        self._animate()
+    def animate(self, frame: int = 0) -> None:
+        """Display the given GIF frame and schedule the next one."""
 
-        if not obj:
-            self._gif_image.close()
-
-    def _animate(self, idx=0):
-        self.configure(image=self._frames[idx])
-        self.after(self._duration, self._animate, (idx + 1) % len(self._frames))
+        self.configure(image=self.frames[frame])
+        if self.winfo_manager():
+            self.after(self.duration, self.animate, (frame + 1) % len(self.frames))

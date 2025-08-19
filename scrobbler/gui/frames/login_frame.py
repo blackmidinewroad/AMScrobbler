@@ -11,16 +11,16 @@ from ..constants import Colors, Font
 class LoginFrame(ctk.CTkFrame):
     """Displays `log in` button that authenticates user."""
 
-    def __init__(self, app, lastfm: Lastfm, force_auth_without_sk: bool = False):
-        super().__init__(app)
+    def __init__(self, master, lastfm: Lastfm, force_auth_without_sk: bool = False):
+        super().__init__(master)
 
-        self.app = app
+        self.master = master
         self.lastfm = lastfm
         self.force_auth_without_sk = force_auth_without_sk
 
         self.auth_complete = None
 
-        self.app.geometry('400x500')
+        self.master.geometry('400x500')
 
         self.grid(row=0, column=0, padx=10, pady=(10, 10))
         self.configure(fg_color='transparent')
@@ -81,7 +81,7 @@ class LoginFrame(ctk.CTkFrame):
         if self.auth_complete is not None:
             if self.auth_complete:
                 self.button.configure(text='Logged in!', fg_color=Colors.GREEN)
-                self.app.auth_complete()
+                self.master.auth_complete()
             else:
                 self.login_retry_label = ctk.CTkLabel(
                     self, width=200, height=100, text=f'{self.retry_msg}\nTry to log in again', font=self.label_retry_font

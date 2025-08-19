@@ -39,9 +39,9 @@ class MinimalMainFrame(ctk.CTkFrame):
             text_color=Colors.MAIN_PINK,
             cursor='hand2',
         )
-        self.user_label.bind('<Button-1>', command=lambda x: webbrowser.open(lastfm.user_url))
-        self.user_label.bind("<Enter>", command=lambda x: self.user_label.configure(text_color=Colors.SECONDARY_PINK))
-        self.user_label.bind("<Leave>", command=lambda x: self.user_label.configure(text_color=Colors.MAIN_PINK))
+        self.user_label.bind('<Button-1>', lambda event: webbrowser.open(lastfm.user_url))
+        self.user_label.bind("<Enter>", lambda event: self.user_label.configure(text_color=Colors.SECONDARY_PINK))
+        self.user_label.bind("<Leave>", lambda event: self.user_label.configure(text_color=Colors.MAIN_PINK))
         self.user_label.grid(row=0, column=0, padx=(10, 10), pady=(5, 5), sticky='nsew')
 
         # Frame with song name and artist
