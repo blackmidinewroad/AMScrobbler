@@ -18,6 +18,8 @@ logger = logging.getLogger(__name__)
 
 
 class App(ctk.CTk):
+    """Main app window."""
+
     def __init__(self):
         super().__init__()
 
@@ -26,9 +28,10 @@ class App(ctk.CTk):
         self.iconbitmap(filework.get_image_path('combined_icon2.ico'))
         self.geometry('400x500')
         self.resizable(False, False)
-        self.protocol('WM_DELETE_WINDOW', self.hide_window)
+        self.protocol('WM_DELETE_WINDOW', self.withdraw)
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
+        self.minimal = True
 
         self.lastfm = Lastfm()
         self.song = Song()
@@ -46,42 +49,39 @@ class App(ctk.CTk):
 
         atexit.register(scrobble_at_exit, self.song, self.lastfm)
 
-    def show_login_frame(self, force_auth_without_sk=False):
+    def show_login_frame(self, force_auth_without_sk: bool = False) -> None:
         self.login_frame = login_frame.LoginFrame(self, self.lastfm, force_auth_without_sk=force_auth_without_sk)
 
-    def show_main_frame(self):
-        # self.lastfm.set_avatar()
-        # self.main_frame = main_frame.MainFrame(self, self.song, self.lastfm)
-        # self.minimalistic = False
-
-        self.main_frame = minimal_main_frame.MinimalisticMainFrame(self, self.song, self.lastfm)
-        self.minimalistic = True
+    def show_main_frame(self) -> None:
+        if self.minimal:
+            self.main_frame = minimal_main_frame.MinimalisticMainFrame(self, self.song, self.lastfm)
+        else:
+            self.lastfm.set_avatar()
+            self.main_frame = main_frame.MainFrame(self, self.song, self.lastfm)
 
         self.start_background_thread()
 
-    def auth_complete(self):
-        self.login_frame.destroy()
-        self.show_main_frame()
-
-    def start_background_thread(self):
+    def start_background_thread(self) -> None:
         threading.Thread(target=self.run_background_with_error_handling, daemon=True).start()
 
-    def start_tray_icon_thread(self):
+    def start_tray_icon_thread(self) -> None:
         self.tray_icon = Tray(self).icon
         threading.Thread(target=self.tray_icon.run, daemon=True).start()
 
-    def hide_window(self):
-        self.withdraw()
-
-    def run_background_with_error_handling(self):
+    def run_background_with_error_handling(self) -> None:
         try:
-            run_background(self.minimalistic, self.song, self.lastfm)
+            run_background(self.minimal, self.song, self.lastfm)
         except Exception as e:
             logger.error('%s', e, exc_info=True)
             force_auth_without_sk = 'Invalid session key' in str(e)
-
             self.after(0, self._update_gui_on_error, force_auth_without_sk)
 
-    def _update_gui_on_error(self, force_auth_without_sk):
+    def _update_gui_on_error(self, force_auth_without_sk: bool) -> None:
         self.main_frame.destroy()
         self.show_login_frame(force_auth_without_sk=force_auth_without_sk)
+
+    def auth_complete(self) -> None:
+        """Callback method used when auth in login frame is complete."""
+
+        self.login_frame.destroy()
+        self.show_main_frame()
