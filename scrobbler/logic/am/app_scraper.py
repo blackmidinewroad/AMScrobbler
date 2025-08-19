@@ -53,19 +53,28 @@ class AppScraper:
         except (ElementNotFoundError, ElementAmbiguousError):
             return False
 
-        # Trying to get duration from progress bar if current duration is not from the app
-        duration = song.metadata['duration'] if song.metadata['is_app_duration'] else self._get_duration_from_window()
-
         song.metadata.update(
             {
                 'title': title,
                 'artist': artist,
                 'id': f'{artist} - {title}',
                 'album': album[0],
-                'duration': duration,
-                'is_app_duration': bool(duration),
                 'playing': True if pause_play in ('Pause', 'Приостановить') else False,
             }
         )
+
+        if song.is_same_song():
+            # Trying to get duration from progress bar if current duration is not from the app
+            duration = song.metadata['duration'] if song.metadata['is_app_duration'] else self._get_duration_from_window()
+            song.metadata.update({'duration': duration, 'is_app_duration': bool(duration)})
+        else:
+            duration = self._get_duration_from_window()
+            song.metadata.update(
+                {
+                    'duration': duration,
+                    'is_app_duration': bool(duration),
+                    'artwork': None,
+                }
+            )
 
         return True

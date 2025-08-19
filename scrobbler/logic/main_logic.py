@@ -1,4 +1,5 @@
 import time
+from math import ceil
 
 from config import Config
 
@@ -7,7 +8,7 @@ from .lastfm import Lastfm
 from .song import Song
 
 
-def _handle_relistening(cur_time: float, song: Song, lastfm: Lastfm) -> None:
+def _handle_relistening(cur_time: int, song: Song, lastfm: Lastfm) -> None:
     """If listening to the same song several times in a row - scrobble and then reset timestamp and playtime, mark as now playing on last.fm."""
 
     if song.is_rescrobbable():
@@ -56,13 +57,19 @@ def run_background(song: Song, lastfm: Lastfm) -> None:
             song.state['duration'] = song.metadata['duration']
             song.state['is_app_duration'] = True
 
-        cur_time = time.time()
+        cur_time = ceil(time.time())
 
         # Encountered new song
         if not song.is_same_song():
+            song.increase_playtime(cur_time)
+
+            # Try to scrobble song that was played before this one
+            if song.is_scrobbable():
+                lastfm.scrobble_song(song)
+
             song.reset_state()
 
-            # If new song is playing - get start of a listen, mark as started playing, mark as now playing on last.fm
+            # If song is playing - get start of a listen, mark as started playing, mark as now playing on last.fm
             if song.metadata['playing']:
                 song.state['started_playing_timestamp'] = int(cur_time)
                 song.state['last_time_played'] = cur_time
@@ -70,10 +77,6 @@ def run_background(song: Song, lastfm: Lastfm) -> None:
                 song.state['playing'] = True
 
                 lastfm.set_now_playing(song)
-
-            # Try to scrobble song that was played before this one
-            if song.is_scrobbable():
-                lastfm.scrobble_song(song)
 
             # Get duration (if no duration from app) and artwork (if not minimal)
             if not song.metadata['is_app_duration'] or not Config.MINIMAL_GUI:

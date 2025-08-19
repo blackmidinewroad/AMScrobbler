@@ -52,16 +52,16 @@ class Song:
     def is_scrobbable(self) -> bool:
         """Check if it is possible to scrobble a song (it exists and playtime is more than a half of it's runtime)."""
 
-        return self.state['id'] and self.state['playtime'] >= self.state['duration'] // 2
+        return self.state['id'] and (self.state['playtime'] >= self.state['duration'] // 2)
 
     def is_rescrobbable(self) -> bool:
         """Check if a song is rescrobbable - playtime is more than it's duration and duration is from the AM app
         (duration from other sources is not very accurate so rescrobbling can give unexpected results).
         """
 
-        return self.state['playtime'] > self.state['duration'] and self.state['is_app_duration']
+        return (self.state['playtime'] > self.state['duration']) and self.state['is_app_duration']
 
-    def increase_playtime(self, cur_time: float) -> None:
+    def increase_playtime(self, cur_time: int) -> None:
         """If last time checked song was playing - increase playtime by time now minus time then."""
 
         if self.state['last_time_played']:
