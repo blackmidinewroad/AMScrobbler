@@ -8,4 +8,3 @@ AMScrobblerData/
 .env
 *.spec
 *.log
-error_log.txt

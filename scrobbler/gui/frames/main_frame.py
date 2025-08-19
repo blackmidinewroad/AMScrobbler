@@ -8,6 +8,7 @@ from scrobbler.logic import Song
 from scrobbler.logic.lastfm import Lastfm
 from scrobbler.utils import is_gif, truncate_text
 
+from ..constants import Colors, Font
 from ..widgets import GIFLabel
 
 
@@ -27,7 +28,7 @@ class MainFrame(ctk.CTkFrame):
 
         # User header frame with user's name and avatar
         self.user_header_frame = ctk.CTkFrame(self)
-        self.user_header_frame.configure(fg_color='#303030', corner_radius=20)
+        self.user_header_frame.configure(fg_color=Colors.DARK_GRAY, corner_radius=20)
         self.user_header_frame.grid(row=0, column=0, pady=(0, 55), sticky='ne')
         self.user_header_frame.grid_columnconfigure(0, weight=1)
 
@@ -47,17 +48,17 @@ class MainFrame(ctk.CTkFrame):
         self.avatar_image_label.grid(row=0, column=1, padx=(15, 10), pady=(5, 5), sticky='nsew')
         self.avatar_image_label.bind('<Button-1>', command=lambda x: webbrowser.open(lastfm.user_url))
 
-        self.user_font = ctk.CTkFont(family='SF Pro Display', size=25)
+        self.user_font = ctk.CTkFont(family=Font.FAMILY, size=Font.SIZE_MEDIUM)
         self.user_label = ctk.CTkLabel(
             self.user_header_frame,
             text=lastfm.username,
             font=self.user_font,
-            text_color='#FF4E6B',
+            text_color=Colors.MAIN_PINK,
             cursor='hand2',
         )
         self.user_label.bind('<Button-1>', command=lambda x: webbrowser.open(lastfm.user_url))
-        self.user_label.bind("<Enter>", command=lambda x: self.user_label.configure(text_color='#E6455F'))
-        self.user_label.bind("<Leave>", command=lambda x: self.user_label.configure(text_color='#FF4E6B'))
+        self.user_label.bind("<Enter>", command=lambda x: self.user_label.configure(text_color=Colors.SECONDARY_PINK))
+        self.user_label.bind("<Leave>", command=lambda x: self.user_label.configure(text_color=Colors.MAIN_PINK))
         self.user_label.grid(row=0, column=0, padx=(10, 0), pady=(5, 5), sticky='nsew')
 
         # Frame where playing / paused gifs are displayed
@@ -83,12 +84,12 @@ class MainFrame(ctk.CTkFrame):
         self.artwork_image_label = ctk.CTkLabel(self.song_frame, text='')
         self.artwork_image_label.grid(row=0, column=0, rowspan=2, padx=(5, 5), pady=(5, 5), sticky='e')
 
-        self.title_font = ctk.CTkFont(family='SF Pro Display', size=25, weight='bold')
+        self.title_font = ctk.CTkFont(family=Font.FAMILY, size=Font.SIZE_MEDIUM, weight='bold')
         self.title_label = ctk.CTkLabel(self.song_frame, text='No music((', font=self.title_font)
         self.title_label.grid(row=0, column=1, padx=(0, 5), sticky='we')
 
-        self.artist_font = ctk.CTkFont(family='SF Pro Display', size=20)
-        self.artist_label = ctk.CTkLabel(self.song_frame, text='', font=self.artist_font, text_color='#A9A9A9')
+        self.artist_font = ctk.CTkFont(family=Font.FAMILY, size=Font.SIZE_SMALL)
+        self.artist_label = ctk.CTkLabel(self.song_frame, text='', font=self.artist_font, text_color=Colors.GRAY)
         self.artist_label.grid(row=1, column=1, padx=(0, 5), sticky='we')
 
         self._update_now_playing(prev_id='', is_prev_playing=False, prev_artwork=None)
@@ -104,7 +105,7 @@ class MainFrame(ctk.CTkFrame):
                 self.pause_gif_label.grid_remove()
                 self.playing_gif.grid()
 
-                self.song_frame.configure(fg_color='#303030')
+                self.song_frame.configure(fg_color=Colors.DARK_GRAY)
 
                 # Display song's artwork, if no artwork display placeholder image
                 artwork = (
@@ -112,7 +113,7 @@ class MainFrame(ctk.CTkFrame):
                 )
                 artwork_image = ctk.CTkImage(artwork, size=(50, 50))
 
-                self.title_font.configure(size=20)
+                self.title_font.configure(size=Font.SIZE_SMALL)
                 self.artwork_image_label.configure(image=artwork_image)
                 self.artwork_image_label.grid()
 
@@ -126,7 +127,7 @@ class MainFrame(ctk.CTkFrame):
                     self.playing_gif.grid_remove()
                     self.pause_gif_label.grid()
                     self.song_frame.configure(fg_color='transparent')
-                    self.title_font.configure(size=25)
+                    self.title_font.configure(size=Font.SIZE_MEDIUM)
                     self.title_label.configure(text='No music((')
                     self.artist_label.grid_remove()
                     self.artwork_image_label.grid_remove()
