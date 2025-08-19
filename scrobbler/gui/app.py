@@ -8,7 +8,7 @@ from scrobbler import filework
 from scrobbler.logic import Song, run_background, scrobble_at_exit
 from scrobbler.logic.lastfm import Lastfm
 
-from .frames import LoginFrame, MainFrame, MinimalisticMainFrame
+from .frames import LoginFrame, MainFrame, MinimalMainFrame
 from .tray import Tray
 
 logger = logging.getLogger(__name__)
@@ -51,7 +51,7 @@ class App(ctk.CTk):
 
     def show_main_frame(self) -> None:
         if self.minimal:
-            self.main_frame = MinimalisticMainFrame(self, self.song, self.lastfm)
+            self.main_frame = MinimalMainFrame(self, self.song, self.lastfm)
         else:
             self.lastfm.set_avatar()
             self.main_frame = MainFrame(self, self.song, self.lastfm)
@@ -59,13 +59,13 @@ class App(ctk.CTk):
         self.start_background_thread()
 
     def start_background_thread(self) -> None:
-        threading.Thread(target=self.run_background_with_error_handling, daemon=True).start()
+        threading.Thread(target=self._run_background_with_error_handling, daemon=True).start()
 
     def start_tray_icon_thread(self) -> None:
         self.tray_icon = Tray(self).icon
         threading.Thread(target=self.tray_icon.run, daemon=True).start()
 
-    def run_background_with_error_handling(self) -> None:
+    def _run_background_with_error_handling(self) -> None:
         try:
             run_background(self.minimal, self.song, self.lastfm)
         except Exception as e:

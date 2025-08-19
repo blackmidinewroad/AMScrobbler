@@ -1,4 +1,5 @@
 import sys
+from datetime import timedelta
 
 import numpy as np
 import psutil
@@ -58,3 +59,13 @@ def truncate_text(text: str, max_chars: int) -> str:
         return text
 
     return text[: max_chars - 3] + '...'
+
+
+def convert_time_to_seconds(time_str: str) -> int:
+    """Convert string time to seconds (e.g. '2:04' -> 124)."""
+
+    window_time_list = time_str.split(':')
+    minutes, seconds = int(window_time_list[-2]), int(window_time_list[-1])
+    hours = 0 if len(window_time_list) == 2 else int(window_time_list[0])
+
+    return timedelta(hours=hours, minutes=minutes, seconds=seconds).seconds

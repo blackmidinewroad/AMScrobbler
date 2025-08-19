@@ -1,6 +1,6 @@
 from .app import App
-from .frames import LoginFrame, MainFrame, MinimalisticMainFrame
+from .frames import LoginFrame, MainFrame, MinimalMainFrame
 from .tray import Tray
 from .widgets import GIFLabel
 
-__all__ = ['App', 'LoginFrame', 'MainFrame', 'MinimalisticMainFrame', 'Tray', 'GIFLabel']
+__all__ = ['App', 'LoginFrame', 'MainFrame', 'MinimalMainFrame', 'Tray', 'GIFLabel']

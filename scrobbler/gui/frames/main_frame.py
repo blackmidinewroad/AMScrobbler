@@ -91,10 +91,10 @@ class MainFrame(ctk.CTkFrame):
         self.artist_label = ctk.CTkLabel(self.song_frame, text='', font=self.artist_font, text_color='#A9A9A9')
         self.artist_label.grid(row=1, column=1, padx=(0, 5), sticky='we')
 
-        self.update_now_playing(prev_id='', is_prev_playing=False, prev_artwork=None)
+        self._update_now_playing(prev_id='', is_prev_playing=False, prev_artwork=None)
 
     # Set frame to now playing or no music
-    def update_now_playing(self, prev_id, is_prev_playing, prev_artwork):
+    def _update_now_playing(self, prev_id, is_prev_playing, prev_artwork):
         if (
             self.song.metadata['id'] != prev_id
             or self.song.metadata['playing'] != is_prev_playing
@@ -131,4 +131,4 @@ class MainFrame(ctk.CTkFrame):
                     self.artist_label.grid_remove()
                     self.artwork_image_label.grid_remove()
 
-        self.after(1000, self.update_now_playing, self.song.metadata['id'], self.song.metadata['playing'], self.song.metadata['artwork'])
+        self.after(1000, self._update_now_playing, self.song.metadata['id'], self.song.metadata['playing'], self.song.metadata['artwork'])

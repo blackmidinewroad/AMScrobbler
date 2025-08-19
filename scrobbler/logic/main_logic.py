@@ -5,7 +5,7 @@ from .lastfm import Lastfm
 from .song import Song
 
 
-def handle_relistening(cur_time: float, song: Song, lastfm: Lastfm) -> None:
+def _handle_relistening(cur_time: float, song: Song, lastfm: Lastfm) -> None:
     """If listening to the same song several times in a row - scrobble and then reset timestamp and playtime, mark as now playing on last.fm."""
 
     if song.is_rescrobbable():
@@ -15,7 +15,7 @@ def handle_relistening(cur_time: float, song: Song, lastfm: Lastfm) -> None:
         lastfm.set_now_playing(song)
 
 
-def handle_no_metadata(song: Song, lastfm: Lastfm) -> None:
+def _handle_no_metadata(song: Song, lastfm: Lastfm) -> None:
     """If no metadata from Apple Music app - try to scrobble last played song."""
 
     if song.is_scrobbable():
@@ -46,7 +46,7 @@ def run_background(minimalistic: bool, song: Song, lastfm: Lastfm) -> None:
 
         # No song in Apple Music window
         if not is_data:
-            handle_no_metadata(song, lastfm)
+            _handle_no_metadata(song, lastfm)
             continue
 
         # Try to set duration from the app
@@ -93,7 +93,7 @@ def run_background(minimalistic: bool, song: Song, lastfm: Lastfm) -> None:
                 song.state['started_playing'] = True
 
             song.increase_playtime(cur_time)
-            handle_relistening(cur_time, song, lastfm)
+            _handle_relistening(cur_time, song, lastfm)
             song.state['last_time_played'] = cur_time
 
         # If song is the same but paused (increase will happen if last time checked song was playing)

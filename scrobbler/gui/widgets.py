@@ -12,7 +12,7 @@ class GIFLabel(ctk.CTkLabel):
         kwargs.setdefault('width', self._gif_image.width)
         kwargs.setdefault('height', self._gif_image.height)
         kwargs.setdefault('text', '')
-        self._duration = kwargs.pop("duration", None) or self._gif_image.info["duration"]
+        self._duration = kwargs.pop('duration', None) or self._gif_image.info['duration']
         self.crop_circle = crop_circle
 
         super().__init__(master, **kwargs)

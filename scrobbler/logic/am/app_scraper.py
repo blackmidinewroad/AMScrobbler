@@ -1,18 +1,17 @@
-from datetime import timedelta
-
 from pywinauto import Application
 from pywinauto.findwindows import ElementAmbiguousError, ElementNotFoundError
 
-from scrobbler.utils import get_process_id
+from scrobbler.utils import convert_time_to_seconds, get_process_id
 
 from ..song import Song
 
 
 class AppScraper:
     def __init__(self):
-        self.get_window()
+        self.main_window = None
+        self._get_window()
 
-    def get_window(self) -> None:
+    def _get_window(self) -> None:
         """Get Apple Music window using process ID."""
 
         pid = get_process_id('AppleMusic.exe')
@@ -23,16 +22,7 @@ class AppScraper:
         app = Application(backend='uia').connect(process=pid)
         self.main_window = app.window(title_re='.*Apple Music.*', visible_only=False)
 
-    def convert_time_to_seconds(self, time_str: str) -> int:
-        """Convert string time to seconds (e.g. '2:04' -> 124)."""
-
-        window_time_list = time_str.split(':')
-        minutes, seconds = int(window_time_list[-2]), int(window_time_list[-1])
-        hours = 0 if len(window_time_list) == 2 else int(window_time_list[0])
-
-        return timedelta(hours=hours, minutes=minutes, seconds=seconds).seconds
-
-    def get_duration_from_window(self) -> int:
+    def _get_duration_from_window(self) -> int:
         """Get duration from progress bar of a song: get listening time and time left, then add them together."""
 
         try:
@@ -41,7 +31,7 @@ class AppScraper:
         except (ElementNotFoundError, ElementAmbiguousError, ValueError):
             return 0
 
-        duration = self.convert_time_to_seconds(cur_time) + self.convert_time_to_seconds(time_left)
+        duration = convert_time_to_seconds(cur_time) + convert_time_to_seconds(time_left)
 
         return duration
 
@@ -49,7 +39,7 @@ class AppScraper:
         """Update song metadata from Apple Music app using GUI."""
 
         if not self.main_window or not self.main_window.exists():
-            self.get_window()
+            self._get_window()
 
         if not self.main_window:
             return False
@@ -64,7 +54,7 @@ class AppScraper:
             return False
 
         # Trying to get duration from progress bar if current duration is not from the app
-        duration = 0 if song.metadata['is_app_duration'] else self.get_duration_from_window()
+        duration = song.metadata['duration'] if song.metadata['is_app_duration'] else self._get_duration_from_window()
 
         song.metadata.update(
             {

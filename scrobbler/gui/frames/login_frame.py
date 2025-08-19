@@ -45,7 +45,7 @@ class LoginFrame(ctk.CTkFrame):
             width=200,
             height=50,
             text='Log in',
-            command=self.start_auth_thread,
+            command=self._start_auth_thread,
             fg_color='#FF4E6B',
             hover_color="#E6455F",
             corner_radius=20,
@@ -54,16 +54,16 @@ class LoginFrame(ctk.CTkFrame):
         )
         self.button.grid(row=2, column=0, pady=(0, 50))
 
-    def start_auth_thread(self) -> None:
+    def _start_auth_thread(self) -> None:
         self.button.configure(state='disabled', text='waiting...', fg_color='#E6455F')
         if self.login_retry_label:
             self.login_retry_label.destroy()
 
-        self.auth_thread = threading.Thread(target=self.auth_process, daemon=True).start()
+        self.auth_thread = threading.Thread(target=self._auth_process, daemon=True).start()
 
-        self.poll_auth()
+        self._poll_auth()
 
-    def auth_process(self) -> None:
+    def _auth_process(self) -> None:
         if not filework.user_data_exists() or self.force_auth_without_sk:
             self.auth_complete = self.lastfm.auth_without_session_key()
             self.retry_msg = 'What took you so long?'
@@ -73,7 +73,7 @@ class LoginFrame(ctk.CTkFrame):
                 self.force_auth_without_sk = True
                 self.retry_msg = 'Something went wrong'
 
-    def poll_auth(self) -> None:
+    def _poll_auth(self) -> None:
         """Poll for auth to be completed. If auth unsuccessful let user try to log in again."""
 
         if self.auth_complete is not None:
@@ -88,4 +88,4 @@ class LoginFrame(ctk.CTkFrame):
                 self.button.configure(state='normal', text='Log in', fg_color='#FF4E6B')
                 self.auth_complete = None
         else:
-            self.after(500, self.poll_auth)
+            self.after(500, self._poll_auth)

@@ -7,7 +7,7 @@ from scrobbler.logic.lastfm import Lastfm
 from scrobbler.utils import truncate_text
 
 
-class MinimalisticMainFrame(ctk.CTkFrame):
+class MinimalMainFrame(ctk.CTkFrame):
     def __init__(self, master, song: Song, lastfm: Lastfm):
         super().__init__(master)
 
@@ -57,10 +57,10 @@ class MinimalisticMainFrame(ctk.CTkFrame):
         self.artist_label = ctk.CTkLabel(self.song_frame, text='', font=self.artist_font, text_color='#A9A9A9')
         self.artist_label.grid(row=1, column=0, padx=(0, 5), sticky='we')
 
-        self.update_now_playing(prev_id='', is_prev_playing=False)
+        self._update_now_playing(prev_id='', is_prev_playing=False)
 
     # Set frame to now playing or no music
-    def update_now_playing(self, prev_id, is_prev_playing):
+    def _update_now_playing(self, prev_id, is_prev_playing):
         if self.song.metadata['id'] != prev_id or self.song.metadata['playing'] != is_prev_playing:
             if self.song.metadata['playing']:
                 self.title_font.configure(size=20)
@@ -78,4 +78,4 @@ class MinimalisticMainFrame(ctk.CTkFrame):
                     self.title_label.grid_configure(pady=(10, 0))
                     self.artist_label.grid_remove()
 
-        self.after(1000, self.update_now_playing, self.song.metadata['id'], self.song.metadata['playing'])
+        self.after(1000, self._update_now_playing, self.song.metadata['id'], self.song.metadata['playing'])

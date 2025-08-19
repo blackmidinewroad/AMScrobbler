@@ -17,7 +17,7 @@ class WebScraper:
     def __init__(self):
         self.session = requests.Session()
 
-    def build_search_url(self, title: str, artist: str, album: str) -> str:
+    def _build_search_url(self, title: str, artist: str, album: str) -> str:
         """Build URL for searching using title of a song, artist name and album name."""
 
         search = f'{title} {artist} {album}'
@@ -42,7 +42,7 @@ class WebScraper:
     def update_metadata_from_AM_web(self, song: Song, include_artwork) -> None:
         """Fetch duration of a song from Apple Music web."""
 
-        song_search_url = self.build_search_url(song.metadata['title'], song.metadata['artist'], song.metadata['album'])
+        song_search_url = self._build_search_url(song.metadata['title'], song.metadata['artist'], song.metadata['album'])
         search_soup = self.fetch_data(song_search_url)
         if not search_soup:
             return
