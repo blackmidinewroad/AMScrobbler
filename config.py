@@ -14,6 +14,8 @@ class Config:
     USER_DATA_FILE = AM_SCROBBLER_DATA_DIR / 'lastfm_user_data.json'
     LOG_FILE = AM_SCROBBLER_DATA_DIR / 'am_scrobbler.log'
 
+    MINIMAL_GUI = os.getenv('MINIMAL_GUI', 'true').lower() not in ('false', '0', 'no', 'n', '')
+
 
 def ensure_directories() -> None:
     """Ensure necessary directories exist"""

@@ -8,6 +8,8 @@ from bs4 import BeautifulSoup
 from PIL import Image
 from requests.exceptions import HTTPError, RequestException, Timeout
 
+from config import Config
+
 from ..song import Song
 
 logger = logging.getLogger(__name__)
@@ -39,7 +41,7 @@ class WebScraper:
         except (HTTPError, Timeout, RequestException):
             logger.warning("Couldn't fetch web page, URL: %s", url, exc_info=True)
 
-    def update_metadata_from_AM_web(self, song: Song, include_artwork) -> None:
+    def update_metadata(self, song: Song) -> None:
         """Fetch duration of a song from Apple Music web."""
 
         song_search_url = self._build_search_url(song.metadata['title'], song.metadata['artist'], song.metadata['album'])
@@ -77,7 +79,7 @@ class WebScraper:
                     if duration:
                         song.metadata['duration'] = duration
 
-        if include_artwork:
+        if not Config.MINIMAL_GUI:
             # Get album's artwork
             artwork_data = (
                 json_album_data.get('data', {}).get('sections', [{}])[0].get('items', [{}])[0].get('artwork', {}).get('dictionary', {})

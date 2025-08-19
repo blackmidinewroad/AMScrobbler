@@ -1,5 +1,7 @@
 import time
 
+from config import Config
+
 from .am import AppScraper, WebScraper
 from .lastfm import Lastfm
 from .song import Song
@@ -34,7 +36,7 @@ def scrobble_at_exit(song: Song, lastfm: Lastfm):
         lastfm.scrobble_song(song)
 
 
-def run_background(minimalistic: bool, song: Song, lastfm: Lastfm) -> None:
+def run_background(song: Song, lastfm: Lastfm) -> None:
     """Main function that executes background logic. Checks for music currently playing in Apple Music Windows app and scrobbles songs."""
 
     app_scraper = AppScraper()
@@ -73,9 +75,9 @@ def run_background(minimalistic: bool, song: Song, lastfm: Lastfm) -> None:
             if song.is_scrobbable():
                 lastfm.scrobble_song(song)
 
-            # Get duration (if no duration from app) and artwork (if not minimalistic)
-            if not song.metadata['is_app_duration'] or not minimalistic:
-                web_scraper.update_metadata_from_AM_web(song, include_artwork=not minimalistic)
+            # Get duration (if no duration from app) and artwork (if not minimal)
+            if not song.metadata['is_app_duration'] or not Config.MINIMAL_GUI:
+                web_scraper.update_metadata(song)
 
             lastfm.update_metadata(song)
             song.state.update(song.metadata)

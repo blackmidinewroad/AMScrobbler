@@ -4,6 +4,7 @@ import threading
 
 import customtkinter as ctk
 
+from config import Config
 from scrobbler import filework
 from scrobbler.logic import Song, run_background, scrobble_at_exit
 from scrobbler.logic.lastfm import Lastfm
@@ -28,7 +29,6 @@ class App(ctk.CTk):
         self.protocol('WM_DELETE_WINDOW', self.withdraw)
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
-        self.minimal = True
 
         self.lastfm = Lastfm()
         self.song = Song()
@@ -50,7 +50,7 @@ class App(ctk.CTk):
         self.login_frame = LoginFrame(self, self.lastfm, force_auth_without_sk=force_auth_without_sk)
 
     def show_main_frame(self) -> None:
-        if self.minimal:
+        if Config.MINIMAL_GUI:
             self.main_frame = MinimalMainFrame(self, self.song, self.lastfm)
         else:
             self.lastfm.set_avatar()
@@ -67,7 +67,7 @@ class App(ctk.CTk):
 
     def _run_background_with_error_handling(self) -> None:
         try:
-            run_background(self.minimal, self.song, self.lastfm)
+            run_background(self.song, self.lastfm)
         except Exception as e:
             logger.error('%s', e, exc_info=True)
             force_auth_without_sk = 'Invalid session key' in str(e)
