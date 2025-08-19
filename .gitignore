@@ -1,9 +1,6 @@
 __pycache__/
 build/
 dist/
-gui_examples/
-tests/
-AMScrobblerData/
 
 .env
 *.spec
