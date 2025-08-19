@@ -1,16 +1,14 @@
-import sys
 import webbrowser
-from pathlib import Path
 
 import customtkinter as ctk
 from PIL import Image
 
-sys.path.append(str(Path(__file__).resolve().parent.parent.parent.parent))
 from scrobbler import filework
-from scrobbler.gui.widgets import GIFLabel
-from scrobbler.logic.lastfm.api import Lastfm
-from scrobbler.logic.song import Song
+from scrobbler.logic import Song
+from scrobbler.logic.lastfm import Lastfm
 from scrobbler.utils import is_gif, truncate_text
+
+from ..widgets import GIFLabel
 
 
 class MainFrame(ctk.CTkFrame):
@@ -118,10 +116,10 @@ class MainFrame(ctk.CTkFrame):
                 self.artwork_image_label.configure(image=artwork_image)
                 self.artwork_image_label.grid()
 
-                self.title_label.configure(text=truncate_text(self.song.metadata['title'], 26))
+                self.title_label.configure(text=truncate_text(self.song.metadata['title'], 30))
                 self.title_label.grid()
 
-                self.artist_label.configure(text=truncate_text(self.song.metadata['artist'], 30))
+                self.artist_label.configure(text=truncate_text(self.song.metadata['artist'], 33))
                 self.artist_label.grid()
             else:
                 if self.playing_gif.grid_info():

@@ -1,12 +1,8 @@
-import sys
 import time
-from pathlib import Path
 
-sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
-from scrobbler.logic.am.app_scraper import AppScraper
-from scrobbler.logic.am.web_scraper import WebScraper
-from scrobbler.logic.lastfm.api import Lastfm
-from scrobbler.logic.song import Song
+from .am import AppScraper, WebScraper
+from .lastfm import Lastfm
+from .song import Song
 
 
 def handle_relistening(cur_time: float, song: Song, lastfm: Lastfm) -> None:

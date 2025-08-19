@@ -1,13 +1,11 @@
-import sys
 from datetime import timedelta
-from pathlib import Path
 
 from pywinauto import Application
 from pywinauto.findwindows import ElementAmbiguousError, ElementNotFoundError
 
-sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 from scrobbler.utils import get_process_id
-from scrobbler.logic.song import Song
+
+from ..song import Song
 
 
 class AppScraper:

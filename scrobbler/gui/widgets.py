@@ -1,10 +1,6 @@
-import sys
-from pathlib import Path
-
 import customtkinter as ctk
 from PIL import Image
 
-sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 from scrobbler.utils import make_circle
 
 

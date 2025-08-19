@@ -1,18 +1,15 @@
 import atexit
 import logging
-import sys
 import threading
-from pathlib import Path
 
 import customtkinter as ctk
 
-sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 from scrobbler import filework
-from scrobbler.gui.frames import login_frame, main_frame, minimal_main_frame
-from scrobbler.gui.tray import Tray
-from scrobbler.logic.lastfm.api import Lastfm
-from scrobbler.logic.main_logic import run_background, scrobble_at_exit
-from scrobbler.logic.song import Song
+from scrobbler.logic import Song, run_background, scrobble_at_exit
+from scrobbler.logic.lastfm import Lastfm
+
+from .frames import LoginFrame, MainFrame, MinimalisticMainFrame
+from .tray import Tray
 
 logger = logging.getLogger(__name__)
 
@@ -50,14 +47,14 @@ class App(ctk.CTk):
         atexit.register(scrobble_at_exit, self.song, self.lastfm)
 
     def show_login_frame(self, force_auth_without_sk: bool = False) -> None:
-        self.login_frame = login_frame.LoginFrame(self, self.lastfm, force_auth_without_sk=force_auth_without_sk)
+        self.login_frame = LoginFrame(self, self.lastfm, force_auth_without_sk=force_auth_without_sk)
 
     def show_main_frame(self) -> None:
         if self.minimal:
-            self.main_frame = minimal_main_frame.MinimalisticMainFrame(self, self.song, self.lastfm)
+            self.main_frame = MinimalisticMainFrame(self, self.song, self.lastfm)
         else:
             self.lastfm.set_avatar()
-            self.main_frame = main_frame.MainFrame(self, self.song, self.lastfm)
+            self.main_frame = MainFrame(self, self.song, self.lastfm)
 
         self.start_background_thread()
 

@@ -1,12 +1,9 @@
-import sys
 import webbrowser
-from pathlib import Path
 
 import customtkinter as ctk
 
-sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
-from scrobbler.logic.lastfm.api import Lastfm
-from scrobbler.logic.song import Song
+from scrobbler.logic import Song
+from scrobbler.logic.lastfm import Lastfm
 from scrobbler.utils import truncate_text
 
 
@@ -68,11 +65,11 @@ class MinimalisticMainFrame(ctk.CTkFrame):
             if self.song.metadata['playing']:
                 self.title_font.configure(size=20)
 
-                self.title_label.configure(text=truncate_text(self.song.metadata['title'], 35))
+                self.title_label.configure(text=truncate_text(self.song.metadata['title'], 38))
                 self.title_label.grid_configure(pady=(0, 0))
                 self.title_label.grid()
 
-                self.artist_label.configure(text=truncate_text(self.song.metadata['artist'], 38))
+                self.artist_label.configure(text=truncate_text(self.song.metadata['artist'], 41))
                 self.artist_label.grid()
             else:
                 if not self.title_label.cget('text') == self.pause_text:

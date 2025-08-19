@@ -1,12 +1,9 @@
-import sys
 import threading
-from pathlib import Path
 
 import customtkinter as ctk
 
-sys.path.append(str(Path(__file__).resolve().parent.parent.parent.parent))
 from scrobbler import filework
-from scrobbler.logic.lastfm.api import Lastfm
+from scrobbler.logic.lastfm import Lastfm
 
 
 class LoginFrame(ctk.CTkFrame):

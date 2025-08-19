@@ -1,17 +1,15 @@
 import logging
-import sys
 import time
 import webbrowser
-from pathlib import Path
 
 import pylast
 
-sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 from config import Config
 from scrobbler.filework import load_user_data, save_user_data
-from scrobbler.logic.am.web_scraper import WebScraper
-from scrobbler.logic.song import Song
 from scrobbler.utils import is_gif, make_circle
+
+from ..am import WebScraper
+from ..song import Song
 
 logger = logging.getLogger(__name__)
 

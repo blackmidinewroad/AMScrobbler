@@ -1,11 +1,10 @@
 import logging
 import sys
-from pathlib import Path
 
-sys.path.append(str(Path(__file__).resolve().parent.parent))
 from config import Config, ensure_directories
-from scrobbler.gui.app import App
-from scrobbler.utils import single_instance
+
+from .gui import App
+from .utils import single_instance
 
 logger = logging.getLogger(__name__)
 

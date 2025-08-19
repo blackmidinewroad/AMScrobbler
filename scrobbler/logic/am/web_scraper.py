@@ -1,8 +1,6 @@
 import json
 import logging
-import sys
 from io import BytesIO
-from pathlib import Path
 from urllib.parse import quote
 
 import requests
@@ -10,8 +8,7 @@ from bs4 import BeautifulSoup
 from PIL import Image
 from requests.exceptions import HTTPError, RequestException, Timeout
 
-sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
-from scrobbler.logic.song import Song
+from ..song import Song
 
 logger = logging.getLogger(__name__)
 
