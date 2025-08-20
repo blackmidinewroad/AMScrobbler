@@ -62,8 +62,8 @@ class App(ctk.CTk):
         threading.Thread(target=self._run_background_with_error_handling, daemon=True).start()
 
     def start_tray_icon_thread(self) -> None:
-        self.tray_icon = Tray(self).icon
-        threading.Thread(target=self.tray_icon.run, daemon=True).start()
+        self.tray = Tray(self)
+        threading.Thread(target=self.tray.icon.run, daemon=True).start()
 
     def _run_background_with_error_handling(self) -> None:
         try:
