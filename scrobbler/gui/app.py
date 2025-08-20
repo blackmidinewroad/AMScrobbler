@@ -23,7 +23,7 @@ class App(ctk.CTk):
 
         ctk.set_appearance_mode('dark')
         self.title('AMScrobbler')
-        self.iconbitmap(filework.get_image_path('combined_icon2.ico'))
+        self.iconbitmap(filework.get_image_path('main_icon.ico'))
         self.geometry('400x500')
         self.resizable(False, False)
         self.protocol('WM_DELETE_WINDOW', self.withdraw)

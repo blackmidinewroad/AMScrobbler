@@ -9,7 +9,7 @@ class Tray:
     def __init__(self, master):
         self.master = master
 
-        image = filework.load_image('combined_icon2.png')
+        image = filework.load_image('main_icon.png')
         menu = pystray.Menu(
             pystray.MenuItem(text='Open', action=self.show_window, default=True),
             pystray.MenuItem(text='Quit', action=self.on_tray_quit),

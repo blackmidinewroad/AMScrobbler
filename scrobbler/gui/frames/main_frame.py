@@ -71,7 +71,7 @@ class MainFrame(ctk.CTkFrame):
         self.pause_gif.grid(row=0, column=0)
         self.pause_gif.grid_remove()
 
-        with Image.open(filework.get_image_path('am_50.gif')) as play_gif:
+        with Image.open(filework.get_image_path('play.gif')) as play_gif:
             self.play_gif = GIFLabel(self.gif_frame, play_gif, width=200, height=100)
         self.play_gif.grid(row=0, column=0, pady=(30, 0))
         self.play_gif.grid_remove()
@@ -85,6 +85,7 @@ class MainFrame(ctk.CTkFrame):
 
         self.artwork_image_label = ctk.CTkLabel(self.song_frame, text='')
         self.artwork_image_label.grid(row=0, column=0, rowspan=2, padx=(5, 5), pady=(5, 5), sticky='e')
+        self.placeholder_artwork = filework.load_image('placeholder_artwork.jpg')
 
         self.title_font = ctk.CTkFont(family=Font.FAMILY, size=Font.SIZE_MEDIUM, weight='bold')
         self.title_label = ctk.CTkLabel(self.song_frame, text='No music((', font=self.title_font)
@@ -113,9 +114,7 @@ class MainFrame(ctk.CTkFrame):
                 self.song_frame.configure(fg_color=Colors.DARK_GRAY)
 
                 # Display song's artwork, if no artwork - display placeholder image
-                artwork = (
-                    self.song.metadata['artwork'] if self.song.metadata['artwork'] is not None else filework.load_image('no_artwork.jpg')
-                )
+                artwork = self.song.metadata['artwork'] if self.song.metadata['artwork'] is not None else self.placeholder_artwork
                 artwork_image = ctk.CTkImage(artwork, size=(50, 50))
                 self.artwork_image_label.configure(image=artwork_image)
                 self.artwork_image_label.grid()
