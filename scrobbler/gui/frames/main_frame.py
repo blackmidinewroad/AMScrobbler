@@ -13,7 +13,7 @@ from ..widgets import GIFLabel
 
 
 class MainFrame(ctk.CTkFrame):
-    """Main frame displaying user info and song that's currently playing."""
+    """Main frame displaying user info and song that's currently playing with animation for playing/paused state."""
 
     def __init__(self, master, song: Song, lastfm: Lastfm):
         super().__init__(master)

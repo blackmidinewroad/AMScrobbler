@@ -10,15 +10,14 @@ from ..constants import Colors, Font
 
 
 class MinimalMainFrame(ctk.CTkFrame):
+    """Minimal main frame displaying user info and song that's currently playing."""
+
     def __init__(self, master, song: Song, lastfm: Lastfm):
         super().__init__(master)
 
         self.song = song
 
-        self.title_label, self.artist_label = None, None
-        self.master = master
-
-        self.master.geometry('400x150')
+        master.geometry('400x150')
 
         self.configure(fg_color='transparent')
         self.grid(row=0, column=0, padx=10, pady=(10, 10), sticky='nsew')
@@ -44,7 +43,7 @@ class MinimalMainFrame(ctk.CTkFrame):
         self.user_label.bind("<Leave>", lambda event: self.user_label.configure(text_color=Colors.MAIN_PINK))
         self.user_label.grid(row=0, column=0, padx=(10, 10), pady=(5, 5), sticky='nsew')
 
-        # Frame with song name and artist
+        # Frame with song's title and artist
         self.song_frame = ctk.CTkFrame(self)
         self.song_frame.configure(fg_color='transparent')
         self.song_frame.grid(row=1, column=0, sticky='new')
@@ -61,23 +60,22 @@ class MinimalMainFrame(ctk.CTkFrame):
 
         self._update_now_playing(prev_id='', is_prev_playing=False)
 
-    # Set frame to now playing or no music
-    def _update_now_playing(self, prev_id, is_prev_playing):
+    def _update_now_playing(self, prev_id: str, is_prev_playing: bool) -> None:
+        """Update displayed song if the song or playing status changed."""
+
         if self.song.metadata['id'] != prev_id or self.song.metadata['playing'] != is_prev_playing:
             if self.song.metadata['playing']:
                 self.title_font.configure(size=Font.SIZE_SMALL)
-
                 self.title_label.configure(text=truncate_text(self.song.metadata['title'], 38))
                 self.title_label.grid_configure(pady=(0, 0))
-                self.title_label.grid()
 
                 self.artist_label.configure(text=truncate_text(self.song.metadata['artist'], 41))
                 self.artist_label.grid()
-            else:
-                if not self.title_label.cget('text') == self.pause_text:
-                    self.title_font.configure(size=Font.SIZE_MEDIUM)
-                    self.title_label.configure(text=self.pause_text)
-                    self.title_label.grid_configure(pady=(10, 0))
-                    self.artist_label.grid_remove()
+            elif self.title_label.cget('text') != self.pause_text:
+                self.title_font.configure(size=Font.SIZE_MEDIUM)
+                self.title_label.configure(text=self.pause_text)
+                self.title_label.grid_configure(pady=(10, 0))
+
+                self.artist_label.grid_remove()
 
         self.after(1000, self._update_now_playing, self.song.metadata['id'], self.song.metadata['playing'])
