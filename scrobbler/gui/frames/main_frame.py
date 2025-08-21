@@ -10,6 +10,7 @@ from scrobbler.utils import is_gif, truncate_text
 
 from ..constants import Colors, Font
 from ..widgets import GIFLabel
+from .login_frame import LoginFrame
 
 
 class MainFrame(ctk.CTkFrame):
@@ -17,6 +18,7 @@ class MainFrame(ctk.CTkFrame):
 
     Includes:
         - User avatar and username (clickable, opens profile in browser).
+        - Relogin button.
         - Animated GIFs indicating play/pause state.
         - Song metadata (artwork, title, and artist).
 
@@ -32,6 +34,7 @@ class MainFrame(ctk.CTkFrame):
             lastfm (Lastfm): Last.fm API client for user info.
 
         - Builds user header with username and avatar (clickable link).
+        - Create relogin button.
         - Creates play/pause labels with animated GIFs to indicate play/pause state.
         - Creates title/artist labels for now playing info.
         - Starts periodic updates.
@@ -40,6 +43,7 @@ class MainFrame(ctk.CTkFrame):
         super().__init__(master)
 
         self.song = song
+        self.lastfm = lastfm
 
         self.configure(fg_color='transparent')
         self.grid(row=0, column=0, padx=10, pady=(10, 10), sticky='nsew')
@@ -80,6 +84,16 @@ class MainFrame(ctk.CTkFrame):
         self.user_label.bind("<Enter>", lambda event: self.user_label.configure(text_color=Colors.SECONDARY_PINK))
         self.user_label.bind("<Leave>", lambda event: self.user_label.configure(text_color=Colors.MAIN_PINK))
         self.user_label.grid(row=0, column=0, padx=(10, 0), pady=(5, 5), sticky='nsew')
+
+        # Logut button
+        self.logout_frame = ctk.CTkFrame(self, fg_color='transparent')
+        self.logout_frame.grid(row=0, column=0, pady=(5, 55), sticky='nw')
+        self.logout_frame.grid_columnconfigure(0, weight=1)
+
+        logout_img = ctk.CTkImage(Image.open(filework.get_image_path('logout.png')), size=(30, 25))
+        self.logout_image_label = ctk.CTkLabel(self.logout_frame, image=logout_img, text='', cursor='hand2')
+        self.logout_image_label.grid(row=0, column=0, padx=(10, 10), pady=(5, 5), sticky='nsew')
+        self.logout_image_label.bind('<Button-1>', self._relogin)
 
         # Frame with playing/paused gifs
         self.gif_frame = ctk.CTkFrame(self, fg_color='transparent')
@@ -182,3 +196,9 @@ class MainFrame(ctk.CTkFrame):
             self.pause_gif.grid_remove()
             self.play_gif.grid()
             self.play_gif.animate()
+
+    def _relogin(self, event) -> None:
+        """Destroy main frame and open login frame on `relogin` button click."""
+
+        self.destroy()
+        LoginFrame(self.master, self.lastfm, force_auth_without_sk=True)

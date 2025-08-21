@@ -25,6 +25,7 @@ class LoginFrame(ctk.CTkFrame):
             lastfm (Lastfm): Last.fm client used for authentication.
             force_auth_without_sk (bool): If True, forces authentication without using a stored session key, even if one exists.
         """
+
         super().__init__(master)
 
         self.master = master
@@ -45,11 +46,9 @@ class LoginFrame(ctk.CTkFrame):
         self.login_label = ctk.CTkLabel(self, width=200, height=100, text='Apple Music\nlast.fm scrobbler', font=self.label_font)
         self.login_label.grid(row=0, column=0, pady=(0, 60))
 
-        self.retry_msg = 'Something went wrong'
-
         if self.force_auth_without_sk:
             self.login_retry_label = ctk.CTkLabel(
-                self, width=200, height=100, text=f'{self.retry_msg}\nTry to log in again', font=self.label_retry_font
+                self, width=200, height=100, text='Try to log in again', font=self.label_retry_font
             )
             self.login_retry_label.grid(row=1, column=0, pady=(0, 20))
         else:
@@ -88,12 +87,10 @@ class LoginFrame(ctk.CTkFrame):
 
         if not filework.user_data_exists() or self.force_auth_without_sk:
             self.auth_complete = self.lastfm.auth_without_session_key()
-            self.retry_msg = 'What took you so long?'
         else:
             self.auth_complete = self.lastfm.auth_with_session_key()
             if not self.auth_complete:
                 self.force_auth_without_sk = True
-                self.retry_msg = 'Something went wrong'
 
     def _poll_auth(self) -> None:
         """Check periodically whether authentication has completed.
@@ -113,7 +110,7 @@ class LoginFrame(ctk.CTkFrame):
                 self.master.auth_complete()
             else:
                 self.login_retry_label = ctk.CTkLabel(
-                    self, width=200, height=100, text=f'{self.retry_msg}\nTry to log in again', font=self.label_retry_font
+                    self, width=200, height=100, text='Try to log in again', font=self.label_retry_font
                 )
                 self.login_retry_label.grid(row=1, column=0, pady=(0, 20))
                 self.button.configure(state='normal', text='Log in', fg_color=Colors.MAIN_PINK)

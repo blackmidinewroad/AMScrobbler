@@ -109,5 +109,6 @@ class App(ctk.CTk):
     def auth_complete(self) -> None:
         """Callback executed after successful authentication. Destroys login frame and shows the main frame."""
 
-        self.login_frame.destroy()
+        if hasattr(self, 'login_frame'):
+            self.login_frame.destroy()
         self.show_main_frame()

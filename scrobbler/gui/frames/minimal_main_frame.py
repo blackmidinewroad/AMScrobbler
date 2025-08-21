@@ -1,12 +1,15 @@
 import webbrowser
 
 import customtkinter as ctk
+from PIL import Image
 
+from scrobbler.filework import get_image_path
 from scrobbler.logic import Song
 from scrobbler.logic.lastfm import Lastfm
 from scrobbler.utils import truncate_text
 
 from ..constants import Colors, Font
+from .login_frame import LoginFrame
 
 
 class MinimalMainFrame(ctk.CTkFrame):
@@ -26,8 +29,8 @@ class MinimalMainFrame(ctk.CTkFrame):
             song (Song): The Song object representing the current song.
             lastfm (Lastfm): Last.fm API client for user info.
 
-        - Sets window geometry.
         - Builds user header with username (clickable link).
+        - Create relogin button.
         - Creates title/artist labels for now playing info.
         - Starts periodic updates.
         """
@@ -35,6 +38,7 @@ class MinimalMainFrame(ctk.CTkFrame):
         super().__init__(master)
 
         self.song = song
+        self.lastfm = lastfm
 
         master.geometry('400x150')
 
@@ -61,6 +65,16 @@ class MinimalMainFrame(ctk.CTkFrame):
         self.user_label.bind("<Enter>", lambda event: self.user_label.configure(text_color=Colors.SECONDARY_PINK))
         self.user_label.bind("<Leave>", lambda event: self.user_label.configure(text_color=Colors.MAIN_PINK))
         self.user_label.grid(row=0, column=0, padx=(10, 10), pady=(5, 5), sticky='nsew')
+
+        # Logut button
+        self.logout_frame = ctk.CTkFrame(self, fg_color='transparent')
+        self.logout_frame.grid(row=0, column=0, pady=(0, 0), sticky='nw')
+        self.logout_frame.grid_columnconfigure(0, weight=1)
+
+        logout_img = ctk.CTkImage(Image.open(get_image_path('logout.png')), size=(30, 25))
+        self.logout_image_label = ctk.CTkLabel(self.logout_frame, image=logout_img, text='', cursor='hand2')
+        self.logout_image_label.grid(row=0, column=0, padx=(10, 10), pady=(5, 5), sticky='nsew')
+        self.logout_image_label.bind('<Button-1>', self._relogin)
 
         # Frame with song's title and artist
         self.song_frame = ctk.CTkFrame(self)
@@ -109,3 +123,9 @@ class MinimalMainFrame(ctk.CTkFrame):
 
         if self.winfo_exists():
             self.after(1000, self._update_now_playing, self.song.metadata['id'], self.song.metadata['playing'])
+
+    def _relogin(self, event) -> None:
+        """Destroy main frame and open login frame on `relogin` button click."""
+
+        self.destroy()
+        LoginFrame(self.master, self.lastfm, force_auth_without_sk=True)
