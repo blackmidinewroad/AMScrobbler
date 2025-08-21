@@ -1,7 +1,7 @@
 <div align="center">
   <img src="assets/main_icon.png" alt="AMScrobbler logo" width="200"/>
 </div>
-<p align="center"><strong style="font-size: 2em;">AMScrobbler</strong></p>
+<p align="center" style="font-size: 2em;"><strong>AMScrobbler</strong></p>
 <p align="center" style="font-size: 1.3em;">Last.fm scrobbler for Apple Music Windows App</p>
 
 
