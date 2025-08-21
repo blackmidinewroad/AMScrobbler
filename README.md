@@ -107,5 +107,4 @@ Song is eligible for a scrobble if you have listened to more than a half of the 
 - This project is specifically designed for the **Apple Music Windows App**.
 - To fully quit the AMScrobbler you will need to quit using system tray icon.
 - Background scrobbling works best with minimal GUI.
-- Supports only **English** and **Russian** versions of the Apple Music Windows App.
 - Supports only dark mode.
