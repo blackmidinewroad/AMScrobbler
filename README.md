@@ -1,10 +1,10 @@
 <div align="center">
   <img src="assets/main_icon.png" alt="AMScrobbler logo" width="200"/>
 </div>
-<div id="toc">
+<div id="toc" align="center">
   <ul style="list-style: none">
     <summary>
-      <h1 align="center">AMScrobbler</h1>
+      <h1>AMScrobbler</h1>
     </summary>
   </ul>
 </div>
