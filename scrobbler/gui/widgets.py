@@ -1,4 +1,5 @@
 import customtkinter as ctk
+from PIL import Image
 
 from scrobbler.utils import make_circle
 
@@ -6,7 +7,7 @@ from scrobbler.utils import make_circle
 class GIFLabel(ctk.CTkLabel):
     """A label widget that displays and animates a GIF image frame by frame."""
 
-    def __init__(self, master, gif, crop_circle=False, **kwargs):
+    def __init__(self, master, gif: Image.Image, crop_circle=False, **kwargs):
         kwargs.setdefault('width', gif.width)
         kwargs.setdefault('height', gif.height)
         kwargs.setdefault('text', '')
@@ -30,7 +31,14 @@ class GIFLabel(ctk.CTkLabel):
                 self.frames.append(ctk.CTkImage(self.gif.copy(), size=(self['width'], self['height'])))
 
     def animate(self, frame: int = 0) -> None:
-        """Display the given GIF frame and schedule the next one."""
+        """Display the given GIF frame and schedule the next one.
+
+        Args:
+            frame (int): Index of the frame to display (defaults to 0).
+
+        Notes:
+            This method re-calls itself with `after()` to create a continuous animation loop while the widget is managed.
+        """
 
         self.configure(image=self.frames[frame])
         if self.winfo_manager():

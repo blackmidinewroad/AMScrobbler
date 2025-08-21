@@ -9,9 +9,22 @@ from ..constants import Colors, Font
 
 
 class LoginFrame(ctk.CTkFrame):
-    """Displays `log in` button that authenticates user."""
+    """Login frame that initiates and manages user authentication with Last.fm.
+
+    Provides a "Log in" button that triggers authentication in a background thread, updates UI feedback during the process,
+    and notifies the main app when authentication completes.
+    """
 
     def __init__(self, master, lastfm: Lastfm, force_auth_without_sk: bool = False):
+        """Initialize the login frame.
+
+        Creates `Log in` button fot user to log into Last.fm account.
+
+        Args:
+            master: Parent window (usually `App`).
+            lastfm (Lastfm): Last.fm client used for authentication.
+            force_auth_without_sk (bool): If True, forces authentication without using a stored session key, even if one exists.
+        """
         super().__init__(master)
 
         self.master = master
@@ -57,15 +70,22 @@ class LoginFrame(ctk.CTkFrame):
         self.button.grid(row=2, column=0, pady=(0, 50))
 
     def _start_auth_thread(self) -> None:
+        """Start authentication in a background thread and begin polling for completion."""
+
         self.button.configure(state='disabled', text='waiting...', fg_color=Colors.SECONDARY_PINK)
         if self.login_retry_label:
             self.login_retry_label.destroy()
 
-        self.auth_thread = threading.Thread(target=self._auth_process, daemon=True).start()
+        threading.Thread(target=self._auth_process, daemon=True).start()
 
         self._poll_auth()
 
     def _auth_process(self) -> None:
+        """
+        If there is no session key saved or `force_auth_without_sk` is True authenticate user through web,
+        otherwise use saved session key.
+        """
+
         if not filework.user_data_exists() or self.force_auth_without_sk:
             self.auth_complete = self.lastfm.auth_without_session_key()
             self.retry_msg = 'What took you so long?'
@@ -76,7 +96,16 @@ class LoginFrame(ctk.CTkFrame):
                 self.retry_msg = 'Something went wrong'
 
     def _poll_auth(self) -> None:
-        """Poll for auth to be completed. If auth unsuccessful let user try to log in again."""
+        """Check periodically whether authentication has completed.
+
+        If successful:
+            - Update button text to "Logged in!".
+            - Notify main app via `auth_complete()` callback.
+        If unsuccessful:
+            - Show retry label and re-enable login button.
+        If still pending:
+            - Schedule another poll after 500 ms.
+        """
 
         if self.auth_complete is not None:
             if self.auth_complete:

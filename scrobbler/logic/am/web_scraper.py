@@ -16,33 +16,53 @@ logger = logging.getLogger(__name__)
 
 
 class WebScraper:
+    """Scrapes Apple Music web pages to fetch song metadata, duration, and artwork."""
+
     def __init__(self):
         self.session = requests.Session()
 
     def _build_search_url(self, title: str, artist: str, album: str) -> str:
-        """Build URL for searching using title of a song, artist name and album name."""
+        """Build a search URL for Apple Music using title of a song, artist name and album name."""
 
         search = f'{title} {artist} {album}'
         encoded_search = quote(search, safe='')
 
         return f'https://music.apple.com/us/search?term={encoded_search}'
 
-    def fetch_data(self, url: str, is_image: bool = False):
-        """Fetch HTML content from a URL, return soup or Image."""
+    def fetch_data(self, url: str, is_image: bool = False) -> BeautifulSoup | Image.Image | None:
+        """Fetch content from a URL.
+
+        Args:
+            url (str): URL to fetch.
+            is_image (bool, optional): If True, fetch and return as a PIL Image. If False, return a BeautifulSoup object.
+
+        Returns:
+            BeautifulSoup | Image.Image | None: Parsed HTML, image, or None if request failed.
+        """
 
         try:
             response = self.session.get(url, timeout=10, stream=is_image)
             response.raise_for_status()
             if is_image:
-                res = Image.open(BytesIO(response.content))
+                with Image.open(BytesIO(response.content)) as img:
+                    img.load()
+                    return img
             else:
                 res = BeautifulSoup(response.text, 'html.parser')
-            return res
+                return res
         except (HTTPError, Timeout, RequestException):
             logger.warning("Couldn't fetch web page, URL: %s", url, exc_info=True)
 
     def update_metadata(self, song: Song) -> None:
-        """Fetch duration of a song from Apple Music web."""
+        """Update song metadata by scraping Apple Music.
+
+        Fetches:
+        - Duration of the song (if not already provided by the app).
+        - Album artwork (if GUI mode is not minimal).
+
+        Args:
+            song (Song): Song object to update.
+        """
 
         song_search_url = self._build_search_url(song.metadata['title'], song.metadata['artist'], song.metadata['album'])
         search_soup = self.fetch_data(song_search_url)
@@ -68,10 +88,14 @@ class WebScraper:
         if not script_tag:
             return
 
-        json_album_data = json.loads(script_tag.text)[0]
+        try:
+            json_album_data = json.loads(script_tag.text)[0]
+        except (ValueError, IndexError, KeyError):
+            logger.error('Apple Music changed structure of the script_tag.', exc_info=True)
+            return
 
         # If no duration from AM app - then update duration
-        if not song.metadata['is_app_duration']:
+        if not song.metadata.get('is_app_duration', False):
             track_list = json_album_data.get('data', {}).get('sections', [{}, {}])[1].get('items', [])
             for track in track_list:
                 if track.get('isProminent'):

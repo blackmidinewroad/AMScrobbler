@@ -2,22 +2,20 @@ import logging
 import sys
 
 from config import Config, ensure_directories
-
-from .gui import App
-from .utils import single_instance
+from scrobbler.gui import App
+from scrobbler.utils import single_instance
 
 logger = logging.getLogger(__name__)
 
 
 def main():
-    single_instance('AMScrobbler.exe')
+    """Entry point of the application."""
 
+    logging.basicConfig(level=logging.WARNING, filename=Config.LOG_FILE, format='[%(asctime)s] %(levelname)s: %(message)s', force=True)
+    single_instance()
     ensure_directories()
 
-    logging.basicConfig(level=logging.WARNING, filename=Config.LOG_FILE, format='[%(asctime)s] %(levelname)s: %(message)s')
-
-    app = App()
-    app.mainloop()
+    App().mainloop()
 
 
 if __name__ == '__main__':

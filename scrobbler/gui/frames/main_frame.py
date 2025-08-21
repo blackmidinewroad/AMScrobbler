@@ -13,9 +13,30 @@ from ..widgets import GIFLabel
 
 
 class MainFrame(ctk.CTkFrame):
-    """Main frame displaying user info and song that's currently playing with animation for playing/paused state."""
+    """Main frame displaying user info and the currently playing song.
+
+    Includes:
+        - User avatar and username (clickable, opens profile in browser).
+        - Animated GIFs indicating play/pause state.
+        - Song metadata (artwork, title, and artist).
+
+    Dynamically updates to reflect changes in song metadata.
+    """
 
     def __init__(self, master, song: Song, lastfm: Lastfm):
+        """Initialize the main frame.
+
+        Args:
+            master: Parent window (usually `App`).
+            song (Song): The Song object representing the current song.
+            lastfm (Lastfm): Last.fm API client for user info.
+
+        - Builds user header with username and avatar (clickable link).
+        - Creates play/pause labels with animated GIFs to indicate play/pause state.
+        - Creates title/artist labels for now playing info.
+        - Starts periodic updates.
+        """
+
         super().__init__(master)
 
         self.song = song
@@ -98,9 +119,17 @@ class MainFrame(ctk.CTkFrame):
         self._update_now_playing(prev_id='', is_prev_playing=False, prev_artwork=None)
 
     def _update_now_playing(self, prev_id: str, is_prev_playing: bool, prev_artwork) -> None:
-        """
-        Update displayed song if the song changed, artwork changed (artwork sometimes updates later than other metadata) or
-        playing status changed.
+        """Update displayed song info if metadata changed.
+
+        Triggers re-render when:
+            - Song ID changes (new track).
+            - Play/pause state changes.
+            - Artwork changes (artwork can arrive later than title/artist).
+
+        Args:
+            prev_id (str): Previously displayed song ID.
+            is_prev_playing (bool): Previous play state.
+            prev_artwork: Previously displayed artwork image.
         """
 
         if (
@@ -113,7 +142,6 @@ class MainFrame(ctk.CTkFrame):
 
                 self.song_frame.configure(fg_color=Colors.DARK_GRAY)
 
-                # Display song's artwork, if no artwork - display placeholder image
                 artwork = self.song.metadata['artwork'] if self.song.metadata['artwork'] is not None else self.placeholder_artwork
                 artwork_image = ctk.CTkImage(artwork, size=(50, 50))
                 self.artwork_image_label.configure(image=artwork_image)
@@ -134,15 +162,22 @@ class MainFrame(ctk.CTkFrame):
                 self.artist_label.grid_remove()
                 self.artwork_image_label.grid_remove()
 
-        self.after(1000, self._update_now_playing, self.song.metadata['id'], self.song.metadata['playing'], self.song.metadata['artwork'])
+        if self.winfo_exists():
+            self.after(
+                1000, self._update_now_playing, self.song.metadata['id'], self.song.metadata['playing'], self.song.metadata['artwork']
+            )
 
     def _show_pause_gif(self) -> None:
+        """Display and animate the pause GIF if not already displayed and hide the play GIF."""
+
         if not self.pause_gif.winfo_manager():
             self.play_gif.grid_remove()
             self.pause_gif.grid()
             self.pause_gif.animate()
 
     def _show_play_gif(self) -> None:
+        """Display and animate the play GIF if not already displayed and hide the pause GIF."""
+
         if not self.play_gif.winfo_manager():
             self.pause_gif.grid_remove()
             self.play_gif.grid()

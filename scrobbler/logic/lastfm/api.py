@@ -15,6 +15,8 @@ logger = logging.getLogger(__name__)
 
 
 class Lastfm:
+    """Handles authentication, metadata retrieval, and scrobbling with the Last.fm API."""
+
     def __init__(self):
         self.network = pylast.LastFMNetwork(Config.API_KEY, Config.API_SECRET)
         self.username = None
@@ -23,7 +25,14 @@ class Lastfm:
         self.avatar = None
 
     def is_valid_user_data(self, user_data: dict) -> bool:
-        """Make sure all required values are present in the user data."""
+        """Validate that loaded user data contains the required fields.
+
+        Args:
+            user_data (dict): Dictionary with stored Last.fm user data.
+
+        Returns:
+            bool: True if required keys ('session_key', 'username', 'user_url') are present, False otherwise.
+        """
 
         required_keys = ('session_key', 'username', 'user_url')
         for required_key in required_keys:
@@ -33,7 +42,14 @@ class Lastfm:
         return True
 
     def auth_without_session_key(self) -> bool:
-        """Authenticate user via web. Return True if auth is successful, otherwise return False."""
+        """Authenticate the user via web login flow.
+
+        Opens a browser for the user to log into Last.fm, then polls for up to 3 minutes to retrieve a session key.
+        On success, saves user data locally.
+
+        Returns:
+            bool: True if authentication succeeded, False otherwise.
+        """
 
         skg = pylast.SessionKeyGenerator(self.network)
         url = skg.get_web_auth_url()
@@ -66,10 +82,16 @@ class Lastfm:
         return True
 
     def auth_with_session_key(self) -> bool:
-        """Authenticate user with session key saved in json. Return True if auth is successful."""
+        """Authenticate the user using a stored session key.
+
+        Loads user data from file and initializes the Last.fm user object if valid.
+
+        Returns:
+            bool: True if authentication succeeded, False otherwise.
+        """
 
         user_data = load_user_data()
-        if not self.is_valid_user_data(user_data):
+        if not user_data or not self.is_valid_user_data(user_data):
             return False
 
         self.network.session_key = user_data['session_key']
@@ -81,15 +103,22 @@ class Lastfm:
         return True
 
     def set_avatar(self) -> bool:
-        """Fetch user's last.fm avatar. Return True if successfully fetched avatar, otherwise return False."""
+        """Fetch and process the user's Last.fm avatar.
 
+        Downloads the avatar and converts non-GIF images into circular format.
+
+        Returns:
+            bool: True if avatar was successfully retrieved and processed, False otherwise.
+        """
+
+        url = None
         for _ in range(5):
             try:
                 url = self.user_obj.get_image()
                 break
             except pylast.NetworkError:
                 logger.warning("Couldn't fetch user's avatar url due to pylast.NetworkError, username: %s", self.username)
-                continue
+                time.sleep(0.5)
 
         if not url:
             return False
@@ -104,7 +133,11 @@ class Lastfm:
         return True
 
     def set_now_playing(self, song: Song) -> None:
-        """Mark song as now_playing on last.fm."""
+        """Update the 'now playing' status on Last.fm for the given song.
+
+        Args:
+            song (Song): Song object representing the song.
+        """
 
         try:
             self.network.update_now_playing(
@@ -115,9 +148,13 @@ class Lastfm:
             )
         except pylast.NetworkError:
             logger.warning("Couldn't set 'now playing' for the song due to pylast.NetworkError, song metadata: %s", song.metadata)
-            pass
 
     def scrobble_song(self, song: Song) -> None:
+        """Scrobble given song.
+
+        Args:
+            song (Song): Song object representing the song.
+        """
         for _ in range(5):
             try:
                 self.network.scrobble(
@@ -129,10 +166,17 @@ class Lastfm:
                 break
             except pylast.NetworkError:
                 logger.warning("Couldn't scrobble the song due to pylast.NetworkError, song metadata: %s", song.state)
-                continue
+                time.sleep(0.5)
 
     def update_metadata(self, song: Song) -> None:
-        """Update song metadata with data from last.fm. Correct title and artist name if possible, get duration of a track."""
+        """Update the song's metadata with corrections and duration from Last.fm.
+
+        Attempts to correct the title and artist name, and fetch the track duration.
+        Falls back to a default duration (120 seconds) if unavailable.
+
+        Args:
+            song (Song): Song object representing the song.
+        """
 
         try:
             track = self.network.get_track(song.metadata['artist'], song.metadata['title'])
@@ -149,7 +193,7 @@ class Lastfm:
             duration = 0
 
         # If no duration neither from progress bar or AM web - set duration from last.fm
-        if not song.metadata['duration']:
+        if not song.metadata.get('duration', 0):
             if duration:
                 song.metadata['duration'] = duration
 

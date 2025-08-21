@@ -1,7 +1,9 @@
 class Song:
-    """Represents song that currently visible in Apple Music app.
-    Has 2 main attributes - `metadata`: dict with information about the song (e.g. title, artist, artwork)
-    and `state`: dict with the state of the song in AM app (e.g. playing, playtime).
+    """Represents a song currently visible in the Apple Music app.
+
+    Attributes:
+        metadata (dict): Information about the song (e.g., title, artist, artwork, duration).
+        state (dict): Current state of the song in the Apple Music app (e.g., playing status, playtime, timestamps).
     """
 
     def __init__(self):
@@ -12,9 +14,11 @@ class Song:
         self.reset_state()
 
     def __str__(self):
-        return self.metadata['id']
+        return self.metadata.get('id', '')
 
     def reset_metadata(self) -> None:
+        """Reset metadata to default empty values."""
+
         self.metadata.update(
             {
                 'title': '',
@@ -29,6 +33,8 @@ class Song:
         )
 
     def reset_state(self) -> None:
+        """Reset state to default empty values."""
+
         self.state.update(
             {
                 'title': '',
@@ -47,22 +53,49 @@ class Song:
         )
 
     def is_same_song(self) -> bool:
-        return self.metadata['id'] == self.state['id']
+        """Check if the current song metadata matches the last known state.
 
-    def is_scrobbable(self) -> bool:
-        """Check if it is possible to scrobble a song (it exists and playtime is more than a half of it's runtime)."""
-
-        return self.state['id'] and (self.state['playtime'] >= self.state['duration'] // 2)
-
-    def is_rescrobbable(self) -> bool:
-        """Check if a song is rescrobbable - playtime is more than it's duration and duration is from the AM app
-        (duration from other sources is not very accurate so rescrobbling can give unexpected results).
+        Returns:
+            bool: True if the song IDs match, False otherwise.
         """
 
-        return (self.state['playtime'] > self.state['duration']) and self.state['is_app_duration']
+        return self.metadata.get('id', '') == self.state.get('id', '')
+
+    def is_scrobbable(self) -> bool:
+        """Check if the song is eligible for scrobbling.
+
+        Conditions:
+        - The song must have a valid ID.
+        - The playtime must be at least half of the song's duration.
+
+        Returns:
+            bool: True if scrobble conditions are met, False otherwise.
+        """
+
+        return self.state.get('id', '') and self.state.get('playtime', 0) >= self.state.get('duration', 0) // 2
+
+    def is_rescrobbable(self) -> bool:
+        """Check if the song is eligible for rescrobbling.
+
+        Conditions:
+        - Playtime is longer than the song's duration.
+        - Duration comes from the Apple Music app (accurate source).
+
+        Returns:
+            bool: True if rescrobble conditions are met, False otherwise.
+        """
+
+        return self.state.get('is_app_duration', False) and self.state.get('playtime', 0) > self.state.get('duration', 0)
 
     def increase_playtime(self, cur_time: int) -> None:
-        """If last time checked song was playing - increase playtime by time now minus time then."""
+        """Increase playtime if the song was previously playing.
 
-        if self.state['last_time_played']:
+        Args:
+            cur_time (int): Current timestamp (e.g., time.time()).
+
+        Notes:
+            - Uses 'last_time_played' to calculate elapsed time since last check.
+        """
+
+        if self.state.get('last_time_played'):
             self.state['playtime'] += cur_time - self.state['last_time_played']

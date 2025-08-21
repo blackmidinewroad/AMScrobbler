@@ -7,15 +7,24 @@ from ..song import Song
 
 
 class AppScraper:
+    """Scraper for Apple Music Windows desktop app.
+
+    Uses `pywinauto` to connect to the app window, extract metadata and update the `Song` object.
+    """
+
     def __init__(self):
         self.main_window = None
         self._get_window()
 
     def _get_window(self) -> None:
-        """Get Apple Music window using process ID."""
+        """Connect to the Apple Music window using process ID.
+
+        Finds the process ID of `AppleMusic.exe` and attaches the `pywinauto` Application backend to it.
+        Sets `self.main_window` to the matched window, or None if not found.
+        """
 
         pid = get_process_id('AppleMusic.exe')
-        if not pid:
+        if pid is None:
             self.main_window = None
             return
 
@@ -23,11 +32,18 @@ class AppScraper:
         self.main_window = app.window(title_re='.*Apple Music.*', visible_only=False)
 
     def _get_duration_from_window(self) -> int:
-        """Get duration from progress bar of a song: get listening time and time left, then add them together."""
+        """Extract song duration from progress bar.
+
+        Reads the current playtime (`CurrentTime`) and remaining time (`Duration`) UI elements from the Apple Music window,
+        converts them to seconds, and sums them to estimate total track duration.
+
+        Returns:
+            int: Duration of the track in seconds, or 0 if extraction fails.
+        """
 
         try:
             cur_time = self.main_window.child_window(auto_id='CurrentTime', control_type='Text').window_text()
-            time_left = self.main_window.child_window(auto_id='Duration', control_type='Text').window_text()[1:]
+            time_left = self.main_window.child_window(auto_id='Duration', control_type='Text').window_text().lstrip('-')
         except (ElementNotFoundError, ElementAmbiguousError, ValueError):
             return 0
 
@@ -36,7 +52,16 @@ class AppScraper:
         return duration
 
     def update_metadata(self, song: Song) -> bool:
-        """Update song metadata from Apple Music app using GUI."""
+        """Update song metadata from the Apple Music app GUI.
+
+        Extracts metadata directly from the app window and updates the given `Song`.
+
+        Args:
+            song (Song): Song object to update.
+
+        Returns:
+            bool: True if metadata was successfully updated, False otherwise.
+        """
 
         if not self.main_window or not self.main_window.exists():
             self._get_window()
@@ -58,7 +83,7 @@ class AppScraper:
                 'title': title,
                 'artist': artist,
                 'id': f'{artist} - {title}',
-                'album': album[0],
+                'album': album[0] if album else '',
                 'playing': True if pause_play in ('Pause', 'Приостановить') else False,
             }
         )

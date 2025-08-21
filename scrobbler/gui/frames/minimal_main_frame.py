@@ -10,9 +10,28 @@ from ..constants import Colors, Font
 
 
 class MinimalMainFrame(ctk.CTkFrame):
-    """Minimal main frame displaying user info and song that's currently playing."""
+    """Minimal main frame displaying current user info and the currently playing song.
+
+    A lightweight alternative to the full main frame:
+    - Shows Last.fm username (clickable, links to profile).
+    - Displays current track title and artist if playing.
+    - Updates every second to reflect playback status.
+    """
 
     def __init__(self, master, song: Song, lastfm: Lastfm):
+        """Initialize the minimal main frame.
+
+        Args:
+            master: Parent window (usually `App`).
+            song (Song): The Song object representing the current song.
+            lastfm (Lastfm): Last.fm API client for user info.
+
+        - Sets window geometry.
+        - Builds user header with username (clickable link).
+        - Creates title/artist labels for now playing info.
+        - Starts periodic updates.
+        """
+
         super().__init__(master)
 
         self.song = song
@@ -61,7 +80,17 @@ class MinimalMainFrame(ctk.CTkFrame):
         self._update_now_playing(prev_id='', is_prev_playing=False)
 
     def _update_now_playing(self, prev_id: str, is_prev_playing: bool) -> None:
-        """Update displayed song if the song or playing status changed."""
+        """Update displayed song info if track or play status changed.
+
+        Args:
+            prev_id (str): ID of previously displayed song.
+            is_prev_playing (bool): Whether the song was previously marked as playing.
+
+        Behavior:
+            - If a new song starts, update title and artist.
+            - If playback stops, show pause message.
+            - Reschedules itself every 1s with `after()`.
+        """
 
         if self.song.metadata['id'] != prev_id or self.song.metadata['playing'] != is_prev_playing:
             if self.song.metadata['playing']:
@@ -78,4 +107,5 @@ class MinimalMainFrame(ctk.CTkFrame):
 
                 self.artist_label.grid_remove()
 
-        self.after(1000, self._update_now_playing, self.song.metadata['id'], self.song.metadata['playing'])
+        if self.winfo_exists():
+            self.after(1000, self._update_now_playing, self.song.metadata['id'], self.song.metadata['playing'])
