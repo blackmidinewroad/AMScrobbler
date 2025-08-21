@@ -64,13 +64,15 @@ class MainFrame(ctk.CTkFrame):
             self.avatar_image_label = GIFLabel(
                 self.user_header_frame, lastfm.avatar, crop_circle=True, width=img_w, height=img_h, cursor='hand2'
             )
-            self.avatar_image_label.animate()
         else:
             avatar_image = ctk.CTkImage(lastfm.avatar, size=(img_w, img_h))
             self.avatar_image_label = ctk.CTkLabel(self.user_header_frame, image=avatar_image, text='', cursor='hand2')
 
         self.avatar_image_label.grid(row=0, column=1, padx=(15, 10), pady=(5, 5), sticky='nsew')
         self.avatar_image_label.bind('<Button-1>', lambda event: webbrowser.open(lastfm.user_url))
+
+        if is_gif(lastfm.avatar):
+            self.avatar_image_label.animate()
 
         self.user_font = ctk.CTkFont(family=Font.FAMILY, size=Font.SIZE_MEDIUM)
         self.user_label = ctk.CTkLabel(
