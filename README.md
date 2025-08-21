@@ -24,58 +24,58 @@
 ### Option 1: Using pre-built executables
 1. **Download the Executable**
 
-  Go to the [**Releases**](https://github.com/blackmidinewroad/am-scrobbler/releases) page and download `AMScrobbler.exe` from `Assets` in the latest release.
+    Go to the [**Releases**](https://github.com/blackmidinewroad/am-scrobbler/releases) page and download `AMScrobbler.exe` from `Assets` in the latest release.
 
 2. **Create `.env` file**
 
-  Create a file with the name `.env` in the same folder as `AMScrobbler.exe`. Open it using Notepad or any other text editor and and put this inside of the file:
-  ```env
-  API_KEY='your_lastfm_api_key'
-  API_SECRET='your_lastfm_api_secret'
-  MINIMAL_GUI='true'
-  ```
-
-  - Replace `your_lastfm_api_key` and `your_lastfm_api_secret` with your actual Last.fm API credentials. If you don't have them yet, go to [Last.fm "Create API account" page](https://www.last.fm/api/account/create) and sign up for an API account, you can just fill `Contact email` and `Application name` (any name). After creating an API account you will see `API key` and `Shared secret`.
-  - Replace `MINIMAL_GUI='true'` with `MINIMAL_GUI='false'` if you want full GUI version.
+    Create a file with the name `.env` in the same folder as `AMScrobbler.exe`. Open it using Notepad or any other text editor and and put this inside of the file:
+    ```env
+    API_KEY='your_lastfm_api_key'
+    API_SECRET='your_lastfm_api_secret'
+    MINIMAL_GUI='true'
+    ```
+  
+    - Replace `your_lastfm_api_key` and `your_lastfm_api_secret` with your actual Last.fm API credentials. If you don't have them yet, go to [Last.fm "Create API account" page](https://www.last.fm/api/account/create) and sign up for an API account, you can just fill `Contact email` and `Application name` (any name). After creating an API account you will see `API key` and `Shared secret`.
+    - Replace `MINIMAL_GUI='true'` with `MINIMAL_GUI='false'` if you want full GUI version.
 
 3. **Run the downloaded `.exe` file.**
   
 
 ### Option 2: From source
 1. **Clone the Repository**:
-  ```shell
-  git clone https://github.com/blackmidinewroad/am-scrobbler.git
-  cd am-scrobbler
-  ```
+    ```shell
+    git clone https://github.com/blackmidinewroad/am-scrobbler.git
+    cd am-scrobbler
+    ```
 
 2. **Install Dependencies**
-  - Using pipenv:
+    - Using pipenv:
+      
+        ```shell
+        pipenv install
+        ```
+     - Using pip:
 
-      ```shell
-      pipenv install
-      ```
-   - Using pip:
-   
-      ```shell
-      pip install -r requirements.txt
-      ```
+        ```shell
+        pip install -r requirements.txt
+        ```
 
 3. **Set Up Environment Variables**
 
-  Create a `.env` file in the project root with the following:
-  ```env
-  API_KEY='your_lastfm_api_key'
-  API_SECRET='your_lastfm_api_secret'
-  MINIMAL_GUI='true'  # or 'false' for full GUI mode
-  ```
+    Create a `.env` file in the project root with the following:
+    ```env
+    API_KEY='your_lastfm_api_key'
+    API_SECRET='your_lastfm_api_secret'
+    MINIMAL_GUI='true'  # or 'false' for full GUI mode
+    ```
 
-  Replace `your_lastfm_api_key` and `your_lastfm_api_secret` with your actual Last.fm API credentials. If you don't have them yet, go to [Last.fm "Create API account" page](https://www.last.fm/api/account/create) and sign up for an API account.
+    Replace `your_lastfm_api_key` and `your_lastfm_api_secret` with your actual Last.fm API credentials. If you don't have them yet, go to [Last.fm "Create API account" page](https://www.last.fm/api/account/create) and sign up for an API account.
 
 4. **Run the Application**:
 
-   ```shell
-   python -m scrobbler.main
-   ```
+     ```shell
+     python -m scrobbler.main
+     ```
 
 
 ## Building the Executable
