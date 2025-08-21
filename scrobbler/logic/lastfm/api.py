@@ -77,6 +77,9 @@ class Lastfm:
         }
         save_user_data(user_data)
 
+        if not Config.MINIMAL_GUI:
+            self.set_avatar()
+
         self.network.session_key = session_key
 
         return True
@@ -99,6 +102,9 @@ class Lastfm:
         self.user_url = user_data['user_url']
 
         self.user_obj = self.network.get_user(self.username)
+
+        if not Config.MINIMAL_GUI:
+            self.set_avatar()
 
         return True
 

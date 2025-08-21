@@ -67,15 +67,13 @@ class App(ctk.CTk):
     def show_main_frame(self) -> None:
         """Display the main frame.
 
-        - If minimal GUI is enabled (`Config.MINIMAL_GUI`), show `MinimalMainFrame`.
-        - Otherwise, set Last.fm avatar and show full `MainFrame`.
+        - If minimal GUI is enabled (`Config.MINIMAL_GUI`), show `MinimalMainFrame`, otherwise show full `MainFrame`.
         - Starts background thread for scrobbling logic.
         """
 
         if Config.MINIMAL_GUI:
             self.main_frame = MinimalMainFrame(self, self.song, self.lastfm)
         else:
-            self.lastfm.set_avatar()
             self.main_frame = MainFrame(self, self.song, self.lastfm)
 
         self.start_background_thread()

@@ -62,7 +62,7 @@ class MainFrame(ctk.CTkFrame):
             self.avatar_image_label = ctk.CTkLabel(self.user_header_frame, image=avatar_image, text='', cursor='hand2')
         elif is_gif(lastfm.avatar):
             self.avatar_image_label = GIFLabel(
-                self.user_header_frame, lastfm.avatar, crop_circle=True, width=img_w, height=img_h, cursor='hand2'
+                self.user_header_frame, lastfm.avatar, crop_circle=True, width=img_w - 7, height=img_h - 7, text='', cursor='hand2'
             )
         else:
             avatar_image = ctk.CTkImage(lastfm.avatar, size=(img_w, img_h))
@@ -89,7 +89,7 @@ class MainFrame(ctk.CTkFrame):
 
         # Logut button
         self.logout_frame = ctk.CTkFrame(self, fg_color='transparent')
-        self.logout_frame.grid(row=0, column=0, pady=(5, 55), sticky='nw')
+        self.logout_frame.grid(row=0, column=0, pady=(7, 55), sticky='nw')
         self.logout_frame.grid_columnconfigure(0, weight=1)
 
         logout_img = ctk.CTkImage(Image.open(filework.get_image_path('logout.png')), size=(30, 25))
