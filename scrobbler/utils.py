@@ -69,7 +69,6 @@ def get_executable_name() -> str | None:
     """
 
     if getattr(sys, 'frozen', False):
-        # Running in a PyInstaller executable
         return os.path.basename(sys.executable)
 
 
@@ -87,7 +86,9 @@ def single_instance() -> None:
     for proc in psutil.process_iter(['pid', 'name']):
         if proc.info['name'] == process_name:
             n += 1
-            if n == 2:
+
+            # PyInstaller with `--onefile` runs two `.exe` with the same name, so if `n > 2` then not single instance
+            if n > 2:
                 sys.exit(1)
 
 
