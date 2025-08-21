@@ -1,8 +1,9 @@
+<style>h1 { border-bottom: 0; } </style>
 <div align="center">
   <img src="assets/main_icon.png" alt="AMScrobbler logo" width="200"/>
 </div>
-<p align="center" style="font-size: 2em;"><strong>AMScrobbler</strong></p>
-<p align="center" style="font-size: 1.3em;">Last.fm scrobbler for Apple Music Windows App</p>
+<h1 align="center">AMScrobbler</h1>
+<h3 align="center">Last.fm scrobbler for Apple Music Windows App</h3>
 
 
 ## Overview
