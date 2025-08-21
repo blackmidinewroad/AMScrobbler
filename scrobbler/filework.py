@@ -57,7 +57,7 @@ def get_image_path(filename: str) -> str:
         # Running in a normal Python environment
         base_path = os.path.abspath('.')
 
-    return os.path.join(base_path, 'icons', filename)
+    return os.path.join(base_path, 'assets', filename)
 
 
 def load_image(filename: str) -> Image.Image | None:
