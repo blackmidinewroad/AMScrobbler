@@ -116,8 +116,8 @@ Song is eligible for a scrobble if you have listened to more than a half of the 
 </p>
 <p align="center">
   <strong>Minimal Main Window</strong><br />
-  <img src="assets/screenshots/main_frame_pause_min.png" alt="Minimal Main Window pause" height="200" />
-  <img src="assets/screenshots/main_frame_play_min.png" alt="Minimal Main Window play" height="200" />
+  <img src="assets/screenshots/main_frame_pause_min.png" alt="Minimal Main Window pause" height="180" />
+  <img src="assets/screenshots/main_frame_play_min.png" alt="Minimal Main Window play" height="180" />
 </p>
 
 
