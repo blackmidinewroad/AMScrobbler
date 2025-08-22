@@ -106,7 +106,19 @@ Song is eligible for a scrobble if you have listened to more than a half of the 
 
 
 ## Screenshots
-
+<p align="center">
+  <strong>Login Window</strong><br />
+  <img src="assets/screenshots/login_frame.png" alt="Login Window" width="400" />
+</p>
+<p align="center">
+  <strong>Main Window</strong><br />
+  <img src="assets/screenshots/main_frame.gif" alt="Main Window" width="400" />
+</p>
+<p align="center">
+  <strong>Minimal Main Window</strong><br />
+  <img src="assets/screenshots/main_frame_pause_min.png" alt="Minimal Main Window pause" width="400" />
+  <img src="assets/screenshots/main_frame_play_min.png" alt="Minimal Main Window play" width="400" />
+</p>
 
 
 ## Notes
