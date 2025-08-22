@@ -135,7 +135,7 @@ class MainFrame(ctk.CTkFrame):
         self._update_now_playing(prev_id='', is_prev_playing=False, prev_artwork=None)
 
     def _update_now_playing(self, prev_id: str, is_prev_playing: bool, prev_artwork: Image.Image) -> None:
-        """Update displayed song info if metadata changed.
+        """Update displayed song info if app is visible and metadata changed.
 
         Triggers re-render when:
             - Song ID changes (new track).
@@ -148,7 +148,7 @@ class MainFrame(ctk.CTkFrame):
             prev_artwork (Image.Image): Previously displayed artwork image.
         """
 
-        if (
+        if self.master.winfo_ismapped() and (
             self.song.metadata['id'] != prev_id
             or self.song.metadata['playing'] != is_prev_playing
             or self.song.metadata['artwork'] != prev_artwork
@@ -179,9 +179,16 @@ class MainFrame(ctk.CTkFrame):
                 self.artwork_image_label.grid_remove()
 
         if self.winfo_exists():
-            self.after(
-                1000, self._update_now_playing, self.song.metadata['id'], self.song.metadata['playing'], self.song.metadata['artwork']
-            )
+            if self.master.winfo_ismapped():
+                self.after(
+                    1000,
+                    self._update_now_playing,
+                    self.song.metadata['id'],
+                    self.song.metadata['playing'],
+                    self.song.metadata['artwork'],
+                )
+            else:
+                self.after(1000, self._update_now_playing, prev_id, is_prev_playing, prev_artwork)
 
     def _show_pause_gif(self) -> None:
         """Display and animate the pause GIF if not already displayed and hide the play GIF."""
