@@ -134,7 +134,7 @@ class MainFrame(ctk.CTkFrame):
 
         self._update_now_playing(prev_id='', is_prev_playing=False, prev_artwork=None)
 
-    def _update_now_playing(self, prev_id: str, is_prev_playing: bool, prev_artwork) -> None:
+    def _update_now_playing(self, prev_id: str, is_prev_playing: bool, prev_artwork: Image.Image) -> None:
         """Update displayed song info if metadata changed.
 
         Triggers re-render when:
@@ -145,7 +145,7 @@ class MainFrame(ctk.CTkFrame):
         Args:
             prev_id (str): Previously displayed song ID.
             is_prev_playing (bool): Previous play state.
-            prev_artwork: Previously displayed artwork image.
+            prev_artwork (Image.Image): Previously displayed artwork image.
         """
 
         if (

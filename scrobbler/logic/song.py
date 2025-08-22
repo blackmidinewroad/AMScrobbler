@@ -52,14 +52,19 @@ class Song:
             }
         )
 
-    def is_same_song(self) -> bool:
+    def is_same_song(self, id: str = None) -> bool:
         """Check if the current song metadata matches the last known state.
+
+        Args:
+            id (str, optional): ID of a song to compare state with. Defaults to None.
 
         Returns:
             bool: True if the song IDs match, False otherwise.
         """
 
-        return self.metadata.get('id', '') == self.state.get('id', '')
+        if id is None:
+            return self.metadata.get('id', '') == self.state.get('id', '')
+        return id == self.state.get('id', '')
 
     def is_scrobbable(self) -> bool:
         """Check if the song is eligible for scrobbling.

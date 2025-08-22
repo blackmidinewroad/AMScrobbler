@@ -34,7 +34,7 @@ class WebScraper:
 
         Args:
             url (str): URL to fetch.
-            is_image (bool, optional): If True, fetch and return as a PIL Image. If False, return a BeautifulSoup object.
+            is_image (bool, optional): If True, fetch and return as a PIL Image. If False, return a BeautifulSoup object. Defaults to False.
 
         Returns:
             BeautifulSoup | Image.Image | None: Parsed HTML, image, or None if request failed.

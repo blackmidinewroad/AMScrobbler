@@ -7,7 +7,7 @@ from scrobbler.utils import make_circle
 class GIFLabel(ctk.CTkLabel):
     """A label widget that displays and animates a GIF image frame by frame."""
 
-    def __init__(self, master, gif: Image.Image, crop_circle=False, **kwargs):
+    def __init__(self, master, gif: Image.Image, crop_circle: bool = False, **kwargs):
         kwargs.setdefault('width', gif.width)
         kwargs.setdefault('height', gif.height)
         kwargs.setdefault('text', '')
@@ -34,7 +34,7 @@ class GIFLabel(ctk.CTkLabel):
         """Display the given GIF frame and schedule the next one.
 
         Args:
-            frame (int): Index of the frame to display (defaults to 0).
+            frame (int, optional): Index of the frame to display. Defaults to 0.
 
         Notes:
             This method re-calls itself with `after()` to create a continuous animation loop while the widget is managed.

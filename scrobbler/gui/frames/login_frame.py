@@ -23,7 +23,8 @@ class LoginFrame(ctk.CTkFrame):
         Args:
             master: Parent window (usually `App`).
             lastfm (Lastfm): Last.fm client used for authentication.
-            force_auth_without_sk (bool): If True, forces authentication without using a stored session key, even if one exists.
+            force_auth_without_sk (bool, optional): If True, forces authentication without using a stored session key, even if one exists. 
+                Defaults to False.
         """
 
         super().__init__(master)

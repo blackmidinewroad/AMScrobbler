@@ -59,7 +59,7 @@ class App(ctk.CTk):
         """Display the login frame.
 
         Args:
-            force_auth_without_sk (bool): If True, force re-authentication even if a stored session key exists.
+            force_auth_without_sk (bool, optional): If True, force re-authentication even if a stored session key exists. Defaults to False.
         """
 
         self.login_frame = LoginFrame(self, self.lastfm, force_auth_without_sk=force_auth_without_sk)
