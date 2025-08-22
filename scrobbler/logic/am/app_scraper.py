@@ -29,7 +29,7 @@ class AppScraper:
             return
 
         app = Application(backend='uia').connect(process=pid)
-        self.main_window = app.window(title_re='.*Apple Music.*', visible_only=False)
+        self.main_window = app.window(title_re='.*Apple Music.*', visible_only=False, found_index=0)
 
     def _get_duration_from_window(self) -> int:
         """Extract song duration from progress bar.
