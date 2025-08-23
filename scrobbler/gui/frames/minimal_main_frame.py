@@ -106,7 +106,7 @@ class MinimalMainFrame(ctk.CTkFrame):
             - Reschedules itself every 1s with `after()`.
         """
 
-        if self.master.winfo_ismapped() and (self.song.metadata['id'] != prev_id or self.song.metadata['playing'] != is_prev_playing):
+        if self.winfo_ismapped() and (self.song.metadata['id'] != prev_id or self.song.metadata['playing'] != is_prev_playing):
             if self.song.metadata['playing']:
                 self.title_font.configure(size=Font.SIZE_SMALL)
                 self.title_label.configure(text=truncate_text(self.song.metadata['title'], 38))
@@ -122,7 +122,7 @@ class MinimalMainFrame(ctk.CTkFrame):
                 self.artist_label.grid_remove()
 
         if self.winfo_exists():
-            if self.master.winfo_ismapped():
+            if self.winfo_ismapped():
                 self.after(1000, self._update_now_playing, self.song.metadata['id'], self.song.metadata['playing'])
             else:
                 self.after(1000, self._update_now_playing, prev_id, is_prev_playing)

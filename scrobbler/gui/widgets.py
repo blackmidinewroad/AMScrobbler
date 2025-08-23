@@ -30,7 +30,7 @@ class GIFLabel(ctk.CTkLabel):
             else:
                 self.frames.append(ctk.CTkImage(self.gif.copy(), size=(self['width'], self['height'])))
 
-    def animate(self, frame: int = 0) -> None:
+    def _animate(self, frame: int = 0) -> None:
         """Display the given GIF frame and schedule the next one.
 
         Args:
@@ -42,4 +42,10 @@ class GIFLabel(ctk.CTkLabel):
 
         self.configure(image=self.frames[frame])
         if self.winfo_manager():
-            self.after(self.duration, self.animate, (frame + 1) % len(self.frames))
+            self.after(self.duration, self._animate, (frame + 1) % len(self.frames))
+
+    def grid(self, **kwargs) -> None:
+        """Start animation after dispalying GIF."""
+
+        super().grid(**kwargs)
+        self._animate()

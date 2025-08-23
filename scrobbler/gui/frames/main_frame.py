@@ -71,9 +71,6 @@ class MainFrame(ctk.CTkFrame):
         self.avatar_image_label.grid(row=0, column=1, padx=(15, 10), pady=(5, 5), sticky='nsew')
         self.avatar_image_label.bind('<Button-1>', lambda event: webbrowser.open(lastfm.user_url))
 
-        if is_gif(lastfm.avatar):
-            self.avatar_image_label.animate()
-
         self.user_font = ctk.CTkFont(family=Font.FAMILY, size=Font.SIZE_MEDIUM)
         self.user_label = ctk.CTkLabel(
             self.user_header_frame,
@@ -113,8 +110,6 @@ class MainFrame(ctk.CTkFrame):
         self.play_gif.grid(row=0, column=0, pady=(30, 0))
         self.play_gif.grid_remove()
 
-        self._show_pause_gif()
-
         # Frame with song's artwork, title and artist
         self.song_frame = ctk.CTkFrame(self, fg_color='transparent')
         self.song_frame.grid(row=2, column=0, sticky='new')
@@ -148,13 +143,13 @@ class MainFrame(ctk.CTkFrame):
             prev_artwork (Image.Image): Previously displayed artwork image.
         """
 
-        if self.master.winfo_ismapped() and (
+        if self.winfo_ismapped() and (
             self.song.metadata['id'] != prev_id
             or self.song.metadata['playing'] != is_prev_playing
             or self.song.metadata['artwork'] != prev_artwork
         ):
             if self.song.metadata['playing']:
-                self._show_play_gif()
+                self.show_play_gif()
 
                 self.song_frame.configure(fg_color=Colors.DARK_GRAY)
 
@@ -169,7 +164,7 @@ class MainFrame(ctk.CTkFrame):
                 self.artist_label.configure(text=truncate_text(self.song.metadata['artist'], 33))
                 self.artist_label.grid()
             elif self.play_gif.winfo_manager():
-                self._show_pause_gif()
+                self.show_pause_gif()
 
                 self.song_frame.configure(fg_color='transparent')
                 self.title_font.configure(size=Font.SIZE_MEDIUM)
@@ -179,7 +174,7 @@ class MainFrame(ctk.CTkFrame):
                 self.artwork_image_label.grid_remove()
 
         if self.winfo_exists():
-            if self.master.winfo_ismapped():
+            if self.winfo_ismapped():
                 self.after(
                     1000,
                     self._update_now_playing,
@@ -190,21 +185,32 @@ class MainFrame(ctk.CTkFrame):
             else:
                 self.after(1000, self._update_now_playing, prev_id, is_prev_playing, prev_artwork)
 
-    def _show_pause_gif(self) -> None:
-        """Display and animate the pause GIF if not already displayed and hide the play GIF."""
+    def show_pause_gif(self) -> None:
+        """Display the pause GIF if not already displayed and hide the play GIF."""
 
         if not self.pause_gif.winfo_manager():
             self.play_gif.grid_remove()
             self.pause_gif.grid()
-            self.pause_gif.animate()
 
-    def _show_play_gif(self) -> None:
-        """Display and animate the play GIF if not already displayed and hide the pause GIF."""
+    def show_play_gif(self) -> None:
+        """Display the play GIF if not already displayed and hide the pause GIF."""
 
         if not self.play_gif.winfo_manager():
             self.pause_gif.grid_remove()
             self.play_gif.grid()
-            self.play_gif.animate()
+
+    def show_avatar_gif(self) -> None:
+        """Display avatar if not already displayed."""
+
+        if not self.avatar_image_label.winfo_manager():
+            self.avatar_image_label.grid()
+
+    def stop_all_animations(self) -> None:
+        """Hide all GIFs."""
+
+        self.play_gif.grid_remove()
+        self.pause_gif.grid_remove()
+        self.avatar_image_label.grid_remove()
 
     def _relogin(self, event) -> None:
         """Destroy main frame and open login frame on `relogin` button click."""

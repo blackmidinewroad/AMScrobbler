@@ -39,6 +39,10 @@ class App(ctk.CTk):
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
 
+        self.login_frame = None
+        self.main_frame = None
+        self.tray = None
+
         self.lastfm = Lastfm()
         self.song = Song()
 
@@ -107,6 +111,26 @@ class App(ctk.CTk):
     def auth_complete(self) -> None:
         """Callback executed after successful authentication. Destroys login frame and shows the main frame."""
 
-        if hasattr(self, 'login_frame'):
+        if self.login_frame is not None and self.login_frame.winfo_exists():
             self.login_frame.destroy()
         self.show_main_frame()
+
+    def withdraw(self) -> None:
+        """Stop animating GIFs when window is withdrawn."""
+
+        if not Config.MINIMAL_GUI and self.main_frame is not None and self.main_frame.winfo_exists():
+            self.main_frame.stop_all_animations()
+
+        return super().withdraw()
+
+    def deiconify(self) -> None:
+        """Show GIFs when window becomes visible."""
+
+        if not Config.MINIMAL_GUI and self.main_frame is not None and self.main_frame.winfo_exists():
+            if self.song.metadata.get('playing'):
+                self.main_frame.show_play_gif()
+            else:
+                self.main_frame.show_pause_gif()
+            self.main_frame.show_avatar_gif()
+
+        return super().deiconify()
