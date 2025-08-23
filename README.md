@@ -17,6 +17,7 @@
 
 ## Features
 - **Real-time Scrobbling**: Automatically detects and scrobbles tracks playing in the Apple Music Windows App.
+- **Background Scrobbling**: After logging in, the GUI is not necessary. You can close it, and scrobbling will continue in the background. To reopen the GUI, use the system tray icon.
 - **Now Playing Updates**: Sets the "now playing" status on Last.fm as soon as a track starts.
 - **Metadata Enrichment**: Pulls accurate track duration, album artwork, and corrections from Apple Music web pages and Last.fm API.
 - **GUI Modes**:
