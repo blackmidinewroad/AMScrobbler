@@ -127,15 +127,15 @@ class MainFrame(ctk.CTkFrame):
         self.artist_label = ctk.CTkLabel(self.song_frame, text='', font=self.artist_font, text_color=Colors.GRAY)
         self.artist_label.grid(row=1, column=1, padx=(0, 5), sticky='we')
 
-        self._update_now_playing(prev_id='', is_prev_playing=False, prev_artwork=None)
+        self._update_now_playing()
 
-    def _update_now_playing(self, prev_id: str, is_prev_playing: bool, prev_artwork: Image.Image) -> None:
+    def _update_now_playing(self, prev_id: str = '', is_prev_playing: bool = False, prev_artwork: Image.Image = None) -> None:
         """Update displayed song info if app is visible and metadata changed.
 
         Triggers re-render when:
-            - Song ID changes (new track).
-            - Play/pause state changes.
-            - Artwork changes (artwork can arrive later than title/artist).
+            - Song ID changes (new track). Defaults to ''.
+            - Play/pause state changes. Defaults to False.
+            - Artwork changes (artwork can arrive later than title/artist). Defaults to None.
 
         Args:
             prev_id (str): Previously displayed song ID.

@@ -91,14 +91,14 @@ class MinimalMainFrame(ctk.CTkFrame):
         self.artist_label = ctk.CTkLabel(self.song_frame, text='', font=self.artist_font, text_color=Colors.GRAY)
         self.artist_label.grid(row=1, column=0, padx=(0, 5), sticky='we')
 
-        self._update_now_playing(prev_id='', is_prev_playing=False)
+        self._update_now_playing()
 
-    def _update_now_playing(self, prev_id: str, is_prev_playing: bool) -> None:
+    def _update_now_playing(self, prev_id: str = '', is_prev_playing: bool = False) -> None:
         """Update displayed song info if app is visible and track or play status changed.
 
         Args:
-            prev_id (str): ID of previously displayed song.
-            is_prev_playing (bool): Whether the song was previously marked as playing.
+            prev_id (str): ID of previously displayed song. Defaults to ''.
+            is_prev_playing (bool): Whether the song was previously marked as playing. Defaults to False.
 
         Behavior:
             - If a new song starts, update title and artist.
